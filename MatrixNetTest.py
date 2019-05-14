@@ -1,29 +1,50 @@
 import MatrixNet, numpy, pygame, random
 
-Net = MatrixNet.MatrixNet([4, 4, 4], [0, 0])
-NUMBER_OF_STATES = 2
+def imitater(ar):
+    return ar
+
+
+def relu(x):
+    return 0.0 if x < 0 else x
+
+relu_Array = numpy.vectorize(relu)
+
+def redir(x):
+    return 0.0 if x <= 0 else 1
+
+relu_der_Array = numpy.vectorize(redir)
+
+Net = MatrixNet.MatrixNet([2, 4, 2], [-1, 1])
+NUMBER_OF_STATES = 4
 
 # while numpy.linalg.norm(Net.getOut()
 
 pygame.init()
-Screen = pygame.display.set_mode([400,400])
+Screen = pygame.display.set_mode([400, 400])
 pygame.key.set_repeat(100, 50)
 Screen.fill([0, 0, 100])
 
 KEEP = True
 States = []
 for i in range(0, NUMBER_OF_STATES):
-    States.append([random.choice([1, 0]), random.choice([1,0]), random.choice([1,0]), random.choice([1,0])])
-States = [[1,1,0,0], [1,1,1,1]]
+    States.append([random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])])
+States = [[1.0, 1.0],
+          [0.0, 1.0],
+          [1.0, 0.0],
+          [0.0, 0.0]]
 StatesIndex = 0
 Input = States[StatesIndex]
 Net.setIn(Input)
-Ratio = 5.
+Ratio = .1
 found = False
+delay = 1
 while KEEP:
-    input("-----------------------")
+    pygame.time.delay(delay)
+    # input("-----------------------")
     Net.getOutThreshold()
-    Net.learnWithThreshold(Ratio, Input)
+    Net.learnWithThreshold(Ratio, imitater(Input))
+    # print(Input)
+    # Net.learn(Ratio, Input)
     Screen.fill([0, 0, 100])
     Net.draw(Screen, 10, 10, 50)
     pygame.display.flip()
@@ -31,20 +52,25 @@ while KEEP:
         if event.type == pygame.QUIT:
             KEEP = False
         elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_s:
+                if delay == 1:
+                    delay = 500
+                else:
+                    delay = 1
             if event.key == pygame.K_DOWN:
                 Ratio -= .1
-                # print Ratio
+                print(Ratio)
             elif event.key == pygame.K_UP:
                 Ratio += .1
-                # print Ratio
+                print(Ratio)
             elif event.key == pygame.K_SPACE:
                 Input = [random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])]
                 Net.setIn(Input)
                 found = False
-                print("changed")
-    if numpy.linalg.norm(Net.getOutThreshold()- numpy.reshape(numpy.array(Input), (4,1)) ) < .1 and not found:
-        print("Found")
-        # found = True
+                # print("changed")
+    # if numpy.linalg.norm(Net.getOutThreshold() - numpy.reshape(numpy.array(Input), (1, 1))) < .1 and not found:
+    #     print("Found")
+    #     found = True
     StatesIndex = (StatesIndex + 1) % NUMBER_OF_STATES
     Input = States[StatesIndex]
     Net.setIn(Input)
