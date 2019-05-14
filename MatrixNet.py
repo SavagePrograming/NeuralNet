@@ -53,7 +53,7 @@ class MatrixNet:
 
     def getOut(self):
         ## self.NodesValueArray[0] = sigmoid_Array(self.WeightArray[0].dot(numpy.reshape(numpy.append(self.InputArray, -1),((len(self.InputArray) + 1), 1) )))
-        print self.WeightArray
+        print(self.WeightArray)
         self.NodesValueArray[0] = sigmoid_Array(self.WeightArray[0].dot(self.InputArray))
         # self.NodesValueArray[0][-1] = -1
         for i in range(1, len(self.NodesValueArray)):
@@ -79,10 +79,10 @@ class MatrixNet:
         l = len(target)
 
         target = numpy.reshape(numpy.array([target]), (l, 1))
-        print "Target", target
-        print "Value", self.NodesValueArray[-1]
+        print("Target", target)
+        print("Value", self.NodesValueArray[-1])
         past = target - self.NodesValueArray[-1]
-        print past
+        print(past)
         # print target
         for i in range(len(self.NodesValueArray) - 1, 0, -1):
             # for past_row in past:
@@ -104,7 +104,7 @@ class MatrixNet:
 
             current = current * ratio
             self.WeightArray[i] = self.WeightArray[i] + current
-            print "Weight array", i, self.WeightArray[i]
+            print("Weight array", i, self.WeightArray[i])
         NodesValueArraytemp = self.NodesValueArray[0]
         NodesValueArraytemp2 = numpy.reshape(numpy.append(self.InputArray, -1),
                                              (1, len(self.InputArray) + 1))
@@ -114,7 +114,7 @@ class MatrixNet:
 
         current = current * ratio
         self.WeightArray[0] = self.WeightArray[0] + current
-        print "Weight array", 0, self.WeightArray[0]
+        print("Weight array", 0, self.WeightArray[0])
     def learn(self, ratio, target):
         l = len(target)
 

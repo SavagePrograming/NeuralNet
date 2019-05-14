@@ -44,15 +44,15 @@ while KEEP:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_DOWN:
                 Ratio -= .1
-                print Ratio
+                print(Ratio)
             elif event.key == pygame.K_UP:
                 Ratio += .1
-                print Ratio
+                print(Ratio)
             elif event.key == pygame.K_SPACE:
                 Input = [random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])]
                 Net.setIn(Input)
                 found = False
-                print "changed"
+                print("changed")
     Points.append(numpy.linalg.norm(Net.getOutThreshold() - numpy.reshape(numpy.array(Input), (4,1))))
     if len(Points) > 200:
         Points.pop(0)

@@ -21,7 +21,7 @@ Net.setIn(Input)
 Ratio = 5.
 found = False
 while KEEP:
-    raw_input("-----------------------")
+    input("-----------------------")
     Net.getOutThreshold()
     Net.learnWithThreshold(Ratio, Input)
     Screen.fill([0, 0, 100])
@@ -41,9 +41,9 @@ while KEEP:
                 Input = [random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])]
                 Net.setIn(Input)
                 found = False
-                print "changed"
+                print("changed")
     if numpy.linalg.norm(Net.getOutThreshold()- numpy.reshape(numpy.array(Input), (4,1)) ) < .1 and not found:
-        print "Found"
+        print("Found")
         # found = True
     StatesIndex = (StatesIndex + 1) % NUMBER_OF_STATES
     Input = States[StatesIndex]
