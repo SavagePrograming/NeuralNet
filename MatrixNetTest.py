@@ -1,7 +1,12 @@
 import MatrixNet, numpy, pygame, random
 
 def imitater(ar):
-    return ar
+    return [
+        1.0 if ar[0] == ar[1] == 0.0 else 0,
+        1.0 if ar[0] == 0.0 and ar[1] == 1.0 else 0,
+        1.0 if ar[0] == 1.0 and ar[1] == 0.0 else 0,
+        1.0 if ar[0] == ar[1] == 1.0 else 0
+    ]
 
 
 def relu(x):
@@ -14,7 +19,7 @@ def redir(x):
 
 relu_der_Array = numpy.vectorize(redir)
 
-Net = MatrixNet.MatrixNet([2, 4, 2], [-1, 1])
+Net = MatrixNet.MatrixNet([2, 4, 4], [-1.0, 1.0])
 NUMBER_OF_STATES = 4
 
 # while numpy.linalg.norm(Net.getOut()
@@ -35,7 +40,7 @@ States = [[1.0, 1.0],
 StatesIndex = 0
 Input = States[StatesIndex]
 Net.setIn(Input)
-Ratio = .1
+Ratio = 1.0
 found = False
 delay = 1
 while KEEP:

@@ -91,32 +91,44 @@ class MatrixNet:
         l = len(target)
 
         target = numpy.reshape(numpy.array([target]), (l, 1))
-        # print("Target", target)
-        # print("Value", self.NodesValueArray[-1])
-        past = 2*(target - self.NodesValueArray[-1])
-        # print("Inital dif:" + str(past))
+        print("Target:" +str(target))
+        print("Real:"+str(self.NodesValueArray[-1]))
+        past = 2 * (target - self.NodesValueArray[-1])
+        print("Inital dif:" + str(past))
         # print target
         for i in range(len(self.NodesValueArray) - 1, 0, -1):
             # for past_row in past:
             NodesValueArraytemp = self.NodesValueArray[i]#numpy.reshape(numpy.append(self.NodesValueArray[i], -1), ((len(self.NodesValueArray[i]) + 1), 1))
+            # print("NodesValueArraytemp:" + str(NodesValueArraytemp))
+
             NodesValueArraytemp2 = numpy.reshape(numpy.append(self.NodesValueArray[i - 1], 1), (1, len(self.NodesValueArray[i - 1]) + 1))
+            # print("NodesValueArraytemp2:" + str(NodesValueArraytemp2))
 
-            sigder = ((numpy.array([[1.0]] * len(NodesValueArraytemp)) - NodesValueArraytemp) *
-             NodesValueArraytemp)
+            sigder = self.ActivationFunctionDerivitive(NodesValueArraytemp)
+            # print("sigmoid div:" + str(sigder))
 
-            current = self.ActivationFunctionDerivitive(NodesValueArraytemp).dot(NodesValueArraytemp2)
+            sigder_with_past = sigder * past
+            # print("sigder_with_past:" + str(sigder))
 
-            current = current * past
-            past = (numpy.array([[1] * len(current)])).dot(current)
+            current = sigder_with_past.dot(NodesValueArraytemp2)
+            # print("current:" + str(current))
+
+            past = numpy.transpose(sigder_with_past).dot(self.WeightArray[i])
+            # past = (numpy.array([[1] * len(current)])).dot(current)
             # print("|-----")
 
-            # print past
+            # print("past:" + str(past))
+            # print("other past:" + str(other_past))
+            # past = other_past
             # past /= 4
             # print past
 
             past = numpy.reshape(past, (len(past[0]), 1))[:-1]
+            # print("past reshaped:" + str(past))
 
             current = current * ratio
+            # print("Weight shifts dif:" + str(current))
+
             self.WeightArray[i] = self.WeightArray[i] + current
             # print("Weight array", i, self.WeightArray[i])
         NodesValueArraytemp = self.NodesValueArray[0]
@@ -125,16 +137,13 @@ class MatrixNet:
                                              (1, len(self.InputArray) + 1))
         # print("Current Value with thresh:" + str(NodesValueArraytemp2))
 
-        sig = ((numpy.array([[1.0]] * len(NodesValueArraytemp)) - NodesValueArraytemp) *
-                   NodesValueArraytemp)
-        # print("sigmoid div:" + str(sig))
+        sig = self.ActivationFunctionDerivitive(NodesValueArraytemp)
 
-        # print("Weights:" + str(self.WeightArray[0]))
+        # print("new past?:" + str(self.ActivationFunctionDerivitive(NodesValueArraytemp).dot(self.WeightArray[0])))
+        sig_with_past = sig * past
 
-        current = self.ActivationFunctionDerivitive(NodesValueArraytemp).dot(NodesValueArraytemp2)
-        # print("Weight shifts dif:" + str(current))
+        current = sig_with_past.dot(NodesValueArraytemp2)
 
-        current = current * past
 
         # print("Weight shifts with past:" + str(current))
 
