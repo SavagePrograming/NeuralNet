@@ -22,7 +22,7 @@ States = [[1,1,1,1],[1,1,0,0], [0,0,0,0]]
 StatesIndex = 0
 Input = States[StatesIndex]
 Net.setIn(Input)
-Ratio = 5.
+Ratio = 1.0
 found = False
 Points = []
 while KEEP:

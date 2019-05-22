@@ -1,12 +1,52 @@
+import math
+
 import MatrixNet, numpy, pygame, random
+STATE_SIZE = 6
+NUMBER_OF_STATES = 1024
+WIDTH = 1000
+HEIGHT = 800
+ERROR_SIZE = 500
+DIMEN = [STATE_SIZE, STATE_SIZE,  STATE_SIZE//2 + 1]
+Ratio = 1.0
+
+
+def numtobits(num, bits):
+    l = [0]*bits
+    num = num % (2 ** bits)
+    for i in range(bits - 1, -1, -1):
+        l[i] = int(num / (2 ** i))
+        num = num % (2 ** i)
+    return l
+
+def bitstonum(bits):
+    num = 0
+    for i in range(0, len(bits)):
+        num += (2**i) * bits[i]
+    return num
+out = numtobits(5,5)
+print(out)
+print(bitstonum(out))
 
 def imitater(ar):
-    return [
-        1.0 if ar[0] == ar[1] == 0.0 else 0,
-        1.0 if ar[0] == 0.0 and ar[1] == 1.0 else 0,
-        1.0 if ar[0] == 1.0 and ar[1] == 0.0 else 0,
-        1.0 if ar[0] == ar[1] == 1.0 else 0
-    ]
+    n1 = bitstonum(ar[0:STATE_SIZE//2])
+    n2 = bitstonum(ar[STATE_SIZE//2:])
+    SUM = n1 + n2
+    return numtobits(SUM, STATE_SIZE//2 + 1)
+
+# input = numtobits(5,5) + numtobits(3,5)
+# print("output: " + str(bitstonum(imitater(input))))
+
+
+
+tanh_Array = numpy.tanh
+
+def tanh_derivative(x):
+    return 1.0 - x ** 2.0
+
+tanh_der_Array = numpy.vectorize(tanh_derivative)
+
+def tanh_color_formula(x):
+    return int((1.0 + x) * 127.5)
 
 
 def relu(x):
@@ -14,44 +54,62 @@ def relu(x):
 
 relu_Array = numpy.vectorize(relu)
 
-def redir(x):
-    return 0.0 if x <= 0 else 1
+def relu_derivative(x):
+    return 0.0 if x < 0.0 else 1.0
 
-relu_der_Array = numpy.vectorize(redir)
+relu_der_Array = numpy.vectorize(relu_derivative)
 
-Net = MatrixNet.MatrixNet([2, 4, 4], [-1.0, 1.0])
-NUMBER_OF_STATES = 4
+def sigmoid(x):
+    return 1.0 / (1.0 + math.e ** -float(x))
+
+def relu_color_formula(x):
+    return (int(x * 255.) if x * 255.0 <= 255.0 else 255.0) if x > 0.0 else 0.0
+
+
+
+Net = MatrixNet.MatrixNet(DIMEN, [-1.0, 1.0])#, relu_Array, relu_der_Array, relu_color_formula)
+
 
 # while numpy.linalg.norm(Net.getOut()
 
 pygame.init()
-Screen = pygame.display.set_mode([400, 400])
+Screen = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.key.set_repeat(100, 50)
 Screen.fill([0, 0, 100])
 
 KEEP = True
 States = []
 for i in range(0, NUMBER_OF_STATES):
-    States.append([random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])])
-States = [[1.0, 1.0],
-          [0.0, 1.0],
-          [1.0, 0.0],
-          [0.0, 0.0]]
+    State = []
+    for i in range(0, STATE_SIZE):
+        State.append(random.choice([1, 0]))
+    States.append(State)
+    # States.append([, random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])])
+# States = [[0.0, 1.0],
+#           [1.0, 0.0],
+#           [1.0, 1.0],
+#           [0.0, 0.0]]
 StatesIndex = 0
 Input = States[StatesIndex]
 Net.setIn(Input)
-Ratio = 1.0
 found = False
-delay = 1
+delay = 0
+error_array = []
 while KEEP:
     pygame.time.delay(delay)
     # input("-----------------------")
     Net.getOutThreshold()
-    Net.learnWithThreshold(Ratio, imitater(Input))
+    error_array.append(int((HEIGHT - 100) - Net.learnWithThreshold(Ratio, imitater(Input)) * 50.0))
+    if len(error_array) > ERROR_SIZE:
+        error_array.pop(0)
     # print(Input)
     # Net.learn(Ratio, Input)
     Screen.fill([0, 0, 100])
-    Net.draw(Screen, 10, 10, 50)
+    Net.draw(Screen, 10, 10, 100)
+    pygame.draw.line(Screen, [255, 255, 255], [0,HEIGHT - 100], [WIDTH, HEIGHT - 100])
+    for i in range(len(error_array)):
+        # print( [int(10 + (HEIGHT - 10) * (len(error_array) - i)), error_array[i]])
+        pygame.draw.circle(Screen, [255, 0, 0], [int(10 + (WIDTH - 10) * (len(error_array) - i) / len(error_array)), error_array[i]], 5)
     pygame.display.flip()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
