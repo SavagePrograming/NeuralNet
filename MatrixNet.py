@@ -1,27 +1,36 @@
+from functools import total_ordering
+
 import numpy, random, math, pygame
+
 
 def sigmoid(x):
     return 1.0 / (1.0 + math.e ** -float(x))
 
+
 sigmoid_Array = numpy.vectorize(sigmoid)
 
+
 def sigmoid_der(x):
-    return (1.0-x)* x
+    return (1.0 - x) * x
+
 
 sigmoid_der_Array = numpy.vectorize(sigmoid_der)
+
 
 def color_formula(x):
     return int(x * 255.)
 
 
 class MatrixNet:
-    def __init__(self, Dem, weight_range, activation=sigmoid_Array,activation_der=sigmoid_der_Array, color_formula = color_formula ):
+    def __init__(self, Dem, weight_range, activation=sigmoid_Array, activation_der=sigmoid_der_Array,
+                 color_formula=color_formula):
         self.InputArray = numpy.array([[0]] * Dem[0])
         self.WeightArray = []
         self.NodesValueArray = []
         self.ActivationFunction = activation
         self.ActivationFunctionDerivitive = activation_der
         self.ColorFormula = color_formula
+        self.Dimensions = Dem
 
         for i in range(1, len(Dem)):
             Node_array = []
@@ -67,14 +76,15 @@ class MatrixNet:
         self.NodesValueArray[0] = self.ActivationFunction(self.WeightArray[0].dot(self.InputArray))
         # self.NodesValueArray[0][-1] = -1
         for i in range(1, len(self.NodesValueArray)):
-            self.NodesValueArray[i] = self.ActivationFunction(self.WeightArray[i].dot(self.NodesValueArray[i -1]))
+            self.NodesValueArray[i] = self.ActivationFunction(self.WeightArray[i].dot(self.NodesValueArray[i - 1]))
             # self.NodesValueArray[i][-1] = -1
         return self.NodesValueArray[-1]
 
     def getOutThreshold(self):
         # print self.WeightArray
         # print("++++++")
-        self.NodesValueArray[0] = self.ActivationFunction(self.WeightArray[0].dot(numpy.reshape(numpy.append(self.InputArray, 1),((len(self.InputArray) + 1), 1))))
+        self.NodesValueArray[0] = self.ActivationFunction(
+            self.WeightArray[0].dot(numpy.reshape(numpy.append(self.InputArray, 1), ((len(self.InputArray) + 1), 1))))
         # print("Values[0]:" + str(self.NodesValueArray[0]))
         # print("Values[0]:" + str(self.NodesValueArray[0]))
         # print("Values[0]:"+str(self.NodesValueArray[0]))
@@ -83,7 +93,8 @@ class MatrixNet:
         for i in range(1, len(self.NodesValueArray)):
             # self.NodesValueArray[i] = sigmoid_Array(self.WeightArray[i].dot(self.NodesValueArray[i -1]))
             self.NodesValueArray[i] = self.ActivationFunction(self.WeightArray[i].dot(
-                numpy.reshape(numpy.append(self.NodesValueArray[i -1], 1), ((len(self.NodesValueArray[i - 1]) + 1), 1))))
+                numpy.reshape(numpy.append(self.NodesValueArray[i - 1], 1),
+                              ((len(self.NodesValueArray[i - 1]) + 1), 1))))
             # print("Values:"+str(self.NodesValueArray[i]))
             # self.NodesValueArray[i][-1] = -1
         return self.NodesValueArray[-1]
@@ -100,15 +111,17 @@ class MatrixNet:
         # print("Target:" +str(target))
         # print("Real:"+str(self.NodesValueArray[-1]))
         past = 2 * (target - self.NodesValueArray[-1])
-        error = numpy.sum(past)
+        error = numpy.linalg.norm(past)
         # print("Inital dif:" + str(past))
         # print target
         for i in range(len(self.NodesValueArray) - 1, 0, -1):
             # for past_row in past:
-            NodesValueArraytemp = self.NodesValueArray[i]#numpy.reshape(numpy.append(self.NodesValueArray[i], -1), ((len(self.NodesValueArray[i]) + 1), 1))
+            NodesValueArraytemp = self.NodesValueArray[
+                i]  # numpy.reshape(numpy.append(self.NodesValueArray[i], -1), ((len(self.NodesValueArray[i]) + 1), 1))
             # print("NodesValueArraytemp:" + str(NodesValueArraytemp))
 
-            NodesValueArraytemp2 = numpy.reshape(numpy.append(self.NodesValueArray[i - 1], 1), (1, len(self.NodesValueArray[i - 1]) + 1))
+            NodesValueArraytemp2 = numpy.reshape(numpy.append(self.NodesValueArray[i - 1], 1),
+                                                 (1, len(self.NodesValueArray[i - 1]) + 1))
             # print("NodesValueArraytemp2:" + str(NodesValueArraytemp2))
 
             sigder = self.ActivationFunctionDerivitive(NodesValueArraytemp)
@@ -152,7 +165,6 @@ class MatrixNet:
 
         current = sig_with_past.dot(NodesValueArraytemp2)
 
-
         # print("Weight shifts with past:" + str(current))
 
         current = current * ratio
@@ -161,6 +173,7 @@ class MatrixNet:
         # print("Weight array", 0, self.WeightArray[0])
 
         return error
+
     def learn(self, ratio, target):
         l = len(target)
 
@@ -170,18 +183,18 @@ class MatrixNet:
         for i in range(len(self.NodesValueArray) - 1, 0, -1):
             # for past_row in past:
             sig = ((numpy.array([[1.0]] * len(self.NodesValueArray[i])) - self.NodesValueArray[i]) *
-                       self.NodesValueArray[i])
+                   self.NodesValueArray[i])
 
-            current = self.ActivationFunctionDerivitive(self.NodesValueArray[i]).dot(numpy.reshape(self.NodesValueArray[i- 1], (1, len(self.NodesValueArray[i- 1]))))
+            current = self.ActivationFunctionDerivitive(self.NodesValueArray[i]).dot(
+                numpy.reshape(self.NodesValueArray[i - 1], (1, len(self.NodesValueArray[i - 1]))))
 
             current = current * past
             past = (numpy.array([[1] * len(current)])).dot(current)
 
-            past = numpy.reshape(past,(len(past[0]),1))
+            past = numpy.reshape(past, (len(past[0]), 1))
 
             current = current * ratio
             self.WeightArray[i] = self.WeightArray[i] + current
-
 
         current = self.ActivationFunctionDerivitive(self.NodesValueArray[0]).dot(
             numpy.reshape(self.InputArray, (1, len(self.InputArray)))) * past
@@ -189,16 +202,36 @@ class MatrixNet:
         current = current * ratio
         self.WeightArray[0] = self.WeightArray[0] + current
 
-
-    def draw(self, screen, x, y, scale_x=50, scale_y=50, scale_dot=5):
+    def draw(self, screen, x, y, width, height, scale_dot=5):
+        scale_y = (height - scale_dot * 2) // max(self.Dimensions)
+        scale_x = (width - scale_dot * 2) // (len(self.Dimensions) - 1)
         for y_ in range(0, len(self.InputArray)):
-            pygame.draw.circle(screen, [self.ColorFormula(self.InputArray[y_])] * 3, [int(x), int(y + y_ * scale_y)],
+            pygame.draw.circle(screen, [self.ColorFormula(self.InputArray[y_])] * 3,
+                               [int(x + scale_dot), int(y + scale_dot + y_ * scale_y)],
                                int(scale_dot))
         for x_ in range(0, len(self.NodesValueArray)):
             for y_ in range(0, len(self.NodesValueArray[x_])):
-                pygame.draw.circle(screen, [self.ColorFormula(self.NodesValueArray[x_][y_])] * 3, [int(x + (x_ + 1) * scale_x), int(y + y_ * scale_y)], int(scale_dot))
+                pygame.draw.circle(screen, [self.ColorFormula(self.NodesValueArray[x_][y_])] * 3,
+                                   [int(x + scale_dot + (x_ + 1) * scale_x), int(y + scale_dot + y_ * scale_y)],
+                                   int(scale_dot))
                 for y2 in range(0, len(self.WeightArray[x_][y_])):
-                    pygame.draw.line(screen, [255. - self.ColorFormula(self.ActivationFunction(self.WeightArray[x_][y_][y2])),
-                                              self.ColorFormula(self.ActivationFunction(self.WeightArray[x_][y_][y2])), 0],
-                                     [x + (x_ + 1) * scale_x, y + y_ * scale_y], [x + (x_) * scale_x, y + y2 * scale_y])
+                    pygame.draw.line(screen,
+                                     [255. - self.ColorFormula(self.ActivationFunction(self.WeightArray[x_][y_][y2])),
+                                      self.ColorFormula(self.ActivationFunction(self.WeightArray[x_][y_][y2])), 0],
+                                     [x + scale_dot + (x_ + 1) * scale_x, y + scale_dot + y_ * scale_y],
+                                     [x + scale_dot + (x_) * scale_x, y + scale_dot + y2 * scale_y])
 
+    def __eq__(self, other):
+        return True
+
+    def __lt__(self, other):
+        return False
+
+    def __gt__(self, other):
+        return False
+
+    def __ge__(self, other):
+        return True
+
+    def __le__(self, other):
+        return True
