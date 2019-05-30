@@ -7,7 +7,10 @@ from MatrixNet import MatrixNet
 
 
 def sigmoid(x):
-    return 1.0 / (1.0 + math.e ** -float(x))
+    try:
+        return 1.0 / (1.0 + math.e ** -float(x))
+    except:
+        return 0.5
 
 
 sigmoid_Array = numpy.vectorize(sigmoid)
@@ -20,8 +23,9 @@ def sigmoid_der(x):
 sigmoid_der_Array = numpy.vectorize(sigmoid_der)
 
 
+
 def color_formula(x):
-    return int(x * 255.)
+    return [int(x * 255.), 255, int(x * 255.)]
 
 
 class EvolvingNet(MatrixNet):
@@ -67,14 +71,15 @@ class EvolvingNet(MatrixNet):
 
         for layer in range(len(genetics_weights)):
             for node in range(len(genetics_weights[layer])):
-                for weight in evolvingNet2.Genetics[1][layer][node]:
-                    contain_check = False
-                    for weight_t in self.Genetics[1][layer][node]:
-                        if weight[0] == weight_t[0]:
-                            contain_check = True
-                            break
-                    if not contain_check:
-                        genetics_nodes[layer].append(node)
+                if len(evolvingNet2.Genetics[1][layer]) > node:
+                    for weight in evolvingNet2.Genetics[1][layer][node]:
+                        contain_check = False
+                        for weight_t in self.Genetics[1][layer][node]:
+                            if weight[0] == weight_t[0]:
+                                contain_check = True
+                                break
+                        if not contain_check:
+                            genetics_weights[layer][node].append(weight)
         nodes_to_add = []
 
         for layer in range(len(genetics_weights)):
@@ -82,10 +87,11 @@ class EvolvingNet(MatrixNet):
             for node in range(len(genetics_weights[layer])):
                 removables = []
                 sources = []
-                if len(genetics_weights[layer][node]) > 0 and node not in genetics_nodes[layer]:
+                if len(genetics_weights[layer][node]) > 0 and layer < len(genetics_nodes) and node not in genetics_nodes[layer]:
                     nodes_to_add[layer].append(node)
                 for weight in range(len(genetics_weights[layer][node])):
-                    genetics_weights[layer][node][weight][1] = self.mutate(genetics_weights[layer][node][weight][1])
+                    genetics_weights[layer][node][weight] = (genetics_weights[layer][node][weight][0],
+                                                             self.mutate(genetics_weights[layer][node][weight][1]))
                     sources.append(genetics_weights[layer][node][weight][0])
                     if random.random() < self.Mutability:
                         removables.append(genetics_weights[layer][node][weight])
@@ -110,10 +116,35 @@ class EvolvingNet(MatrixNet):
 
         newNet = EvolvingNet(self.InDem, self.OutDem,
                              genetics_nodes, genetics_weights,
-                             mutability=self.mutate(self.Mutability)
-                             )
+                             mutability=self.Mutability)
 
         return newNet
 
     def mutate(self, number):
-        return number + number * (0.5 - random.random()) * 2.0 * self.Mutability
+        return number + (0.5 - random.random()) * 2.0 * self.Mutability
+
+
+    def distance(self, net):
+        diff = abs(len(self.Genetics[0]) - len(net.Genetics[0])) * 100
+        for layer in range(max(len(self.Genetics[0]), len(net.Genetics[0]))):
+            if len(self.Genetics[0]) > layer and len(net.Genetics[0]) > layer:
+                diff += abs(len(self.Genetics[0][layer]) - len(net.Genetics[0][layer]))
+            elif len(self.Genetics[0]) > layer:
+                diff += len(self.Genetics[0][layer])
+            elif len(net.Genetics[0]) > layer:
+                diff += len(net.Genetics[0][layer])
+        diff *= 10000
+        for layer in range(max(len(self.Genetics[1]), len(net.Genetics[1]))):
+            if len(self.Genetics[1]) > layer and len(net.Genetics[1]) > layer:
+                for node in range(max(len(self.Genetics[1][layer]), len(net.Genetics[1][layer]))):
+                    if len(self.Genetics[1][layer]) > node and len(net.Genetics[1][layer]) > node:
+                        self_list = self.Genetics[1][layer][node]
+                        net_list = net.Genetics[1][layer][node]
+                        for w1 in self_list:
+                            for w2 in net_list:
+                                if w1[0] == w2[0]:
+                                    self_list.remove(w1)
+                                    net_list.remove(w2)
+                                    diff += int(abs(w1[1] - w2[1]) * 10)
+                        diff += 100 * (len(self_list) + len(net_list))
+        return diff

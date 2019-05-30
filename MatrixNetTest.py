@@ -118,7 +118,7 @@ while KEEP:
         error_array.pop(0)
     # print(Input)
     # Net.learn(Ratio, Input)
-    Screen.fill([0, 0, 100])
+    Screen.fill([0, 0, 0])
     Net.draw(Screen, 0, 0, WIDTH, HEIGHT - 200 , 10)
     pygame.draw.line(Screen, [0, 0, 0], [0, HEIGHT - 200], [WIDTH, HEIGHT - 200])
     pygame.draw.line(Screen, [255, 255, 255], [0, HEIGHT - 100], [WIDTH, HEIGHT - 100])

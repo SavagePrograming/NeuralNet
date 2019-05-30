@@ -18,7 +18,7 @@ sigmoid_der_Array = numpy.vectorize(sigmoid_der)
 
 
 def color_formula(x):
-    return int(x * 255.)
+    return [int(x * 255.), 255, int(x * 255.)]
 
 
 class MatrixNet:
@@ -206,18 +206,18 @@ class MatrixNet:
         scale_y = (height - scale_dot * 2) // max(self.Dimensions)
         scale_x = (width - scale_dot * 2) // (len(self.Dimensions) - 1)
         for y_ in range(0, len(self.InputArray)):
-            pygame.draw.circle(screen, [self.ColorFormula(self.InputArray[y_])] * 3,
+            pygame.draw.circle(screen, self.ColorFormula(self.InputArray[y_]),
                                [int(x + scale_dot), int(y + scale_dot + y_ * scale_y)],
                                int(scale_dot))
         for x_ in range(0, len(self.NodesValueArray)):
             for y_ in range(0, len(self.NodesValueArray[x_])):
-                pygame.draw.circle(screen, [self.ColorFormula(self.NodesValueArray[x_][y_])] * 3,
+                pygame.draw.circle(screen, self.ColorFormula(self.NodesValueArray[x_][y_]),
                                    [int(x + scale_dot + (x_ + 1) * scale_x), int(y + scale_dot + y_ * scale_y)],
                                    int(scale_dot))
                 for y2 in range(0, len(self.WeightArray[x_][y_])):
                     pygame.draw.line(screen,
-                                     [255. - self.ColorFormula(self.ActivationFunction(self.WeightArray[x_][y_][y2])),
-                                      self.ColorFormula(self.ActivationFunction(self.WeightArray[x_][y_][y2])), 0],
+                                     [255. - 255. * self.ActivationFunction(self.WeightArray[x_][y_][y2]), 125
+                                      , 255. * self.ActivationFunction(self.WeightArray[x_][y_][y2])],
                                      [x + scale_dot + (x_ + 1) * scale_x, y + scale_dot + y_ * scale_y],
                                      [x + scale_dot + (x_) * scale_x, y + scale_dot + y2 * scale_y])
 
