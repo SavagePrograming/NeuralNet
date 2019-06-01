@@ -25,7 +25,7 @@ sigmoid_der_Array = numpy.vectorize(sigmoid_der)
 
 
 def color_formula(x):
-    return [int(x * 255.), 255, int(x * 255.)]
+    return [255 - int(x * 255.), 255, 255 -int(x * 255.)]
 
 
 class StaticEvolvingNet(MatrixNet):

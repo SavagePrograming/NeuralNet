@@ -35,7 +35,6 @@ class EvolutionDriver:
         self.repopulate(Fitness)
 
     def test(self):
-        self.Simulation.restart()
         Fitness = self.Simulation.run(self.Population)
         self.Average = mean(Fitness)
         self.Median = median(Fitness)

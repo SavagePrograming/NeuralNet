@@ -12,10 +12,11 @@ NUMBER_OF_STATES = 6
 IN_DEM = STATE_SIZE
 OUT_DEM = 1
 
-POPULATION_SIZE = 500
+POPULATION_SIZE = 100
 GENERATION_LENGTH = 4
-MUTABILITY = 0.01
+MUTABILITY = 1.0
 SURVIVOR_RATIO = 0.25
+SPECIES_THRESHOLD = 6.0
 
 WIDTH = 1000
 HEIGHT = 800
@@ -30,7 +31,7 @@ def imitater(ar):
 
 sim = EvolutionSimulation.EvolveSimulation(imitater, IN_DEM, OUT_DEM)
 
-driver = EvolutionDriver.EvolutionDriver(POPULATION_SIZE, SURVIVOR_RATIO, sim, GENERATION_LENGTH, MUTABILITY, evolving_class=StaticEvolvingNet)
+driver = EvolutionSpeciationDriver.EvolutionSpeciationDriver(POPULATION_SIZE, SURVIVOR_RATIO, sim, GENERATION_LENGTH, SPECIES_THRESHOLD, MUTABILITY, evolving_class=StaticEvolvingNet)
 
 pygame.init()
 
@@ -49,7 +50,7 @@ while KEEP:
 
     # Screen.fill([0, 0, 100])
     if testing:
-        pass
+        driver.test()
         driver.draw(Screen, DISPLAY_ROW_SIZE, DISPLAY_ROW_COUNT, 0, 0, WIDTH, HEIGHT - 200, 10)
     else:
         driver.run_visual(Screen, DISPLAY_ROW_SIZE, DISPLAY_ROW_COUNT, 0, 0, WIDTH, HEIGHT - 200, 10)
@@ -86,7 +87,8 @@ while KEEP:
                     States.append(State)
             elif event.key == pygame.K_s:
                 if delay == 1:
-                    print(delay)
                     delay = 1000
                 else:
                     delay = 1
+            elif event.key == pygame.K_SPACE:
+                testing = not testing

@@ -107,9 +107,12 @@ class EvolvingNet(MatrixNet):
                             genetics_weights[layer][node].append((source, -1.0 + self.mutate(1.0)))
 
         for layer in range(len(genetics_nodes)):
-            for node in genetics_nodes[layer]:
+            n = 0
+            while n < len(genetics_nodes[layer]):
                 if random.random() < self.Mutability:
-                    genetics_nodes[layer].remove(node)
+                    del genetics_nodes[layer][n]
+                else:
+                    n += 1
             for node in nodes_to_add[layer]:
                 if random.random() < self.Mutability:
                     genetics_nodes[layer].append(node)
@@ -140,16 +143,19 @@ class EvolvingNet(MatrixNet):
                     if len(self.Genetics[1][layer]) > node and len(net.Genetics[1][layer]) > node:
                         self_list = self.Genetics[1][layer][node]
                         net_list = net.Genetics[1][layer][node]
-                        for w1 in self_list:
-                            # print(net_list)
-                            for w2 in net_list:
-                                if w1[0] == w2[0]:
-                                    self_list.remove(w1)
-                                    # print(w2)
-                                    # print(net_list)
-                                    if w2 in net_list:
-                                        net_list.remove(w2)
-                                    diff += int(abs(w1[1] - w2[1]) * 10)
-                                    break
+                        w1 = 0
+                        while w1 < len(self_list):
+                            w2 = 0
+                            remove = False
+                            while w2 < len(net_list) and not remove:
+                                if self_list[w1][0] == net_list[w2][0]:
+                                    diff += int(abs(self_list[w1][1] - net_list[w2][1]) * 10)
+                                    del self_list[w1][0]
+                                    del net_list[w2][0]
+                                    remove = True
+                                else:
+                                    w2 += 1
+                            if not remove:
+                                w1 += 1
                         diff += 100 * (len(self_list) + len(net_list))
         return diff

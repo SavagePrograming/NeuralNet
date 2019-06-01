@@ -5,14 +5,36 @@ import numpy
 import pygame
 
 
-class EvolveSimulation:
-    def __init__(self, imitator, in_dem, out_dem):
-        self.InDem = in_dem
-        self.OutDem = out_dem
-        self.Imitator = imitator
+def numtobits(num, bits):
+    l = [0] * bits
+    num = num % (2 ** bits)
+    for i in range(bits - 1, -1, -1):
+        l[i] = int(num / (2 ** i))
+        num = num % (2 ** i)
+    return l
+
+
+def bitstonum(bits):
+    num = 0
+    for i in range(0, len(bits)):
+        num += (2 ** i) * bits[i]
+    return num
+
+def add(arr):
+    return numtobits((bitstonum(arr[:3]) + bitstonum(arr[3:])), 4)
+
+class AdditionSimulation:
+    def __init__(self):
+        self.InDem = 6
+        self.OutDem = 4
+
+
+        self.Imitator = add
         self.count = 0
 
-        self.States = [[0,1], [1,1],[1,0],[0,0]]
+        self.States = []
+        for i in range(0,2 ** 6):
+            self.States.append(numtobits(i, 6))
 
     def restart(self):
         self.count = 0
