@@ -1,11 +1,12 @@
 import random
 
+from math import ceil
 from numpy import mean, median
 
 from EvolvingNet import EvolvingNet
 
 
-class EvolutionDriver:
+class EvolutionSpeciationDriver:
     def __init__(self, population_size, survivor_ratio, simlulation, generation_size, mutability=0.5,
                  evolving_class=EvolvingNet):
         self.InDem = simlulation.InDem
@@ -20,6 +21,7 @@ class EvolutionDriver:
         self.Average = 0.0
         self.Maximum = 0.0
         self.Minimum = 0.0
+        self.Species = []
 
         self.Population = []
         for i in range(self.PopulationSize):
@@ -33,14 +35,6 @@ class EvolutionDriver:
         self.Maximum = max(Fitness)
         self.Minimum = min(Fitness)
         self.repopulate(Fitness)
-
-    def test(self):
-        self.Simulation.restart()
-        Fitness = self.Simulation.run(self.Population)
-        self.Average = mean(Fitness)
-        self.Median = median(Fitness)
-        self.Maximum = max(Fitness)
-        self.Minimum = min(Fitness)
 
     def draw(self, screen, row_size, row_count, x, y, width, height, dot_size=10):
         for i in range(row_count * row_size):
@@ -73,9 +67,8 @@ class EvolutionDriver:
     def repopulate(self, Fitness):
         for i in range(len(Fitness)):
             self.Population[i].Score = Fitness[i]
-        self.Population.sort(reverse=True)
-        self.Population = self.Population[:int(self.PopulationSize * self.SurvivorRatio)]
-
-        size = len(self.Population)
-        for i in range(self.PopulationSize - len(self.Population)):
-            self.Population.append(self.Population[i % size].breed(random.choice(self.Population[:size])))
+        print(sum(self.Population))
+        population_total = sum(self.Population)
+        species_ratio = []
+        for specie in self.Species:
+            species_ratio.append(sum(specie)/population_total)

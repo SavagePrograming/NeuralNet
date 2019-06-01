@@ -2,12 +2,12 @@ import math
 
 import MatrixNet, numpy, pygame, random
 
-STATE_SIZE = 6
-NUMBER_OF_STATES = 6
+STATE_SIZE = 2
+NUMBER_OF_STATES = 4
 WIDTH = 1000
 HEIGHT = 800
 ERROR_SIZE = 500
-DIMEN = [STATE_SIZE, STATE_SIZE * 2, STATE_SIZE // 2 + 1]
+DIMEN = [STATE_SIZE, STATE_SIZE, 1]
 Ratio = 1.0
 
 
@@ -33,11 +33,7 @@ print(bitstonum(out))
 
 
 def imitater(ar):
-    n1 = bitstonum(ar[0:STATE_SIZE // 2])
-    n2 = bitstonum(ar[STATE_SIZE // 2:])
-    SUM = n1 + n2
-    return numtobits(SUM, STATE_SIZE // 2 + 1)
-
+    return [1.0] if ar[0] != ar[1] else [0.0]
 
 # input = numtobits(5,5) + numtobits(3,5)
 # print("output: " + str(bitstonum(imitater(input))))
@@ -65,7 +61,7 @@ relu_Array = numpy.vectorize(relu)
 
 
 def relu_derivative(x):
-    return 0.0 if x < 0.0 else 1.0
+    return [0.0] if x < 0.0 else [1.0]
 
 
 relu_der_Array = numpy.vectorize(relu_derivative)
@@ -96,13 +92,10 @@ for i in range(0, NUMBER_OF_STATES):
         State.append(random.choice([1, 0]))
     States.append(State)
     # States.append([, random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])])
-States = [[0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
-          [0.0, 1.0, 0.0, 0.0, 1.0, 0.0],
-          [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-          [1.0, 0.0, 0.0, 1.0, 0.0, 0.0],
-          [0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
-          [0.0, 0.0, 1.0, 0.0, 0.0, 1.0],
-          ]
+States = [[0.0, 1.0],
+          [1.0, 1.0],
+          [1.0, 0.0],
+          [0.0, 0.0]]
 StatesIndex = 0
 Input = States[StatesIndex]
 Net.setIn(Input)
@@ -119,7 +112,7 @@ while KEEP:
     # print(Input)
     # Net.learn(Ratio, Input)
     Screen.fill([0, 0, 0])
-    Net.draw(Screen, 0, 0, WIDTH, HEIGHT - 200 , 10)
+    Net.draw(Screen, 0, 0, WIDTH / 4, HEIGHT - 200 , 10)
     pygame.draw.line(Screen, [0, 0, 0], [0, HEIGHT - 200], [WIDTH, HEIGHT - 200])
     pygame.draw.line(Screen, [255, 255, 255], [0, HEIGHT - 100], [WIDTH, HEIGHT - 100])
     for i in range(len(error_array)):

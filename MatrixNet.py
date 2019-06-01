@@ -18,7 +18,7 @@ sigmoid_der_Array = numpy.vectorize(sigmoid_der)
 
 
 def color_formula(x):
-    return [int(x * 255.), 255, int(x * 255.)]
+    return [255 - int(x * 255.), 255, 255 - int(x * 255.)]
 
 
 class MatrixNet:
@@ -31,6 +31,7 @@ class MatrixNet:
         self.ActivationFunctionDerivitive = activation_der
         self.ColorFormula = color_formula
         self.Dimensions = Dem
+        self.Score = 0
 
         for i in range(1, len(Dem)):
             Node_array = []
@@ -222,16 +223,28 @@ class MatrixNet:
                                      [x + scale_dot + (x_) * scale_x, y + scale_dot + y2 * scale_y])
 
     def __eq__(self, other):
-        return True
+        return self.Score == other.Score
 
     def __lt__(self, other):
-        return False
+        return self.Score < other.Score
 
     def __gt__(self, other):
-        return False
+        return self.Score > other.Score
 
     def __ge__(self, other):
-        return True
+        return self.Score >= other.Score
 
     def __le__(self, other):
-        return True
+        return self.Score <= other.Score
+
+    def __add__(self, other):
+        if isinstance(other, MatrixNet):
+            return self.Score + other.Score
+        else:
+            return self.Score + other
+
+    def __radd__(self, other):
+        if isinstance(other, MatrixNet):
+            return self.Score + other.Score
+        else:
+            return self.Score + other

@@ -141,10 +141,15 @@ class EvolvingNet(MatrixNet):
                         self_list = self.Genetics[1][layer][node]
                         net_list = net.Genetics[1][layer][node]
                         for w1 in self_list:
+                            # print(net_list)
                             for w2 in net_list:
                                 if w1[0] == w2[0]:
                                     self_list.remove(w1)
-                                    net_list.remove(w2)
+                                    # print(w2)
+                                    # print(net_list)
+                                    if w2 in net_list:
+                                        net_list.remove(w2)
                                     diff += int(abs(w1[1] - w2[1]) * 10)
+                                    break
                         diff += 100 * (len(self_list) + len(net_list))
         return diff

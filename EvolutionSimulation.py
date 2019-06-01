@@ -5,9 +5,9 @@ import pygame
 
 
 class EvolveSimulation:
-    def __init__(self, imitator):
-        self.InDem = 2
-        self.OutDem = 2
+    def __init__(self, imitator, in_dem, out_dem):
+        self.InDem = in_dem
+        self.OutDem = out_dem
         self.Imitator = imitator
         self.count = 0
 
@@ -19,37 +19,34 @@ class EvolveSimulation:
 
     def run(self, population):
 
-        Error = []
+        Fitness = []
 
         StatesIndex = (self.count) % len(self.States)
         Input = self.States[StatesIndex]
 
         for Net in population:
             Net.setIn(Input)
-            Error.append(numpy.linalg.norm(Net.getOutThreshold() - self.Imitator(Input)))
+            Fitness.append(numpy.linalg.norm(1.0 - abs(Net.getOutThreshold() - self.Imitator(Input))))
 
         self.count += 1
 
-        return numpy.array(Error)
+        return numpy.array(Fitness)
 
     def run_generations(self, population, generation):
-        Error = numpy.zeros((len(population)))
+        Fitness = numpy.zeros((len(population)))
         for i in range(generation):
-            Error += self.run(population)
-        Error /= generation
-        return Error
+            Fitness += self.run(population)
+        Fitness /= generation
+        return Fitness
 
     def run_generations_visual(self, population, generation, driver, screen, row_size, row_count, x, y, width, height, dot_size=10):
-        Error = numpy.zeros((len(population)))
+        Fitness = numpy.zeros((len(population)))
         for i in range(generation):
-            # print(i)
-            Error += self.run(population)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                   os.quit()
-            # screen.fill([0, 0, 100])
+
+            Fitness += self.run(population)
+
             driver.draw(screen, row_size, row_count, x, y, width, height, dot_size=10)
             pygame.display.flip()
 
-        Error /= generation
-        return Error
+        Fitness /= generation
+        return Fitness
