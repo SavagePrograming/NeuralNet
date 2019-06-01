@@ -14,9 +14,13 @@ def clean(a):
 
 class EvolutionSpeciationDriver:
     def __init__(self, population_size, survivor_ratio, simulation,
-                 generation_size, species_threshold, species_independent_survivor_ratio, mutability=0.5,
+                 generation_size, species_threshold, species_independent_survivor_ratio, balancing_focus, mutability=0.5,
                  evolving_class=EvolvingNet):
+        self.BalanceTop = .5
+        self.BalanceBottom = .25
         self.SpeciesThreshold = species_threshold
+        self.BalanceFocus = balancing_focus
+        self.SISR = species_independent_survivor_ratio
         self.InDem = simulation.InDem
         self.OutDem = simulation.OutDem
         self.PopulationSize = population_size
@@ -33,7 +37,7 @@ class EvolutionSpeciationDriver:
 
         self.Population = []
         for i in range(self.PopulationSize):
-            child = self.EvolvingClass(self.InDem, self.OutDem, 1, mutability=mutability)
+            child = self.EvolvingClass(self.InDem, self.OutDem, 2, mutability=mutability)
             self.Population.append(child)
             self.add_to_specie(child)
 
@@ -82,18 +86,27 @@ class EvolutionSpeciationDriver:
                                     dot_size)
 
     def repopulate(self, Fitness):
-        survivors = int(self.PopulationSize * self.SurvivorRatio)
+        survivors = int(self.PopulationSize * self.SurvivorRatio) - ceil(self.PopulationSize*self.SISR)
         for i in range(len(Fitness)):
             self.Population[i].Score = Fitness[i]
-        MAX = max(self.Population)
-        self.Population.remove(MAX)
+        SIS = []
+        if self.SISR < .25:
+            for i in range(ceil(self.PopulationSize*self.SISR)):
+                MAX = max(self.Population)
+                self.Population.remove(MAX)
+                SIS.append(MAX)
+        else:
+            self.Population.sort(reverse=True)
+            SIS = self.Population[:ceil(self.PopulationSize*self.SISR)]
+            self.Population = self.Population[ceil(self.PopulationSize*self.SISR):]
+
         for s in range(len(self.Species)):
             size = len(self.Species[s])
             for net in self.Species[s]:
                 net.Score /= ceil(size / 4)
         self.Population.sort(reverse=True)
-        self.Population = self.Population[:survivors - 1]
-        self.Population.insert(0, MAX)
+        self.Population = self.Population[:survivors]
+        self.Population = SIS + self.Population
         for s in range(len(self.Species)):
             n = 0
             while n < len(self.Species[s]):
@@ -101,8 +114,35 @@ class EvolutionSpeciationDriver:
                     del self.Species[s][n]
                 else:
                     n += 1
-        clean(self.Species)
-        self.speciate(self.PopulationSize - survivors)
+        if self.BalanceFocus == 0:
+            clean(self.Species)
+            self.speciate(self.PopulationSize - int(self.PopulationSize * self.SurvivorRatio))
+        else:
+            print("Species:" + str(len(self.Species)))
+            if len(self.Species) / self.PopulationSize > self.BalanceTop:
+                self.SpeciesThreshold += self.BalanceFocus
+                clean(self.Species)
+                self.respeciate(self.PopulationSize - int(self.PopulationSize * self.SurvivorRatio))
+            elif len(self.Species) / self.PopulationSize < self.BalanceBottom:
+                self.SpeciesThreshold -= self.BalanceFocus
+                clean(self.Species)
+                self.respeciate(self.PopulationSize - int(self.PopulationSize * self.SurvivorRatio))
+            else:
+                clean(self.Species)
+                self.speciate(self.PopulationSize - int(self.PopulationSize * self.SurvivorRatio))
+
+    def respeciate(self, size):
+        # print(self.Species)
+        survivors = len(self.Population)
+        self.Species = []
+        for i in range(size):
+            child = self.Population[i % survivors].breed(random.choice(self.Population[:survivors]))
+            self.Population.append(child)
+        for child in self.Population:
+            self.add_to_specie(child)
+        # if not len(self.Species) > self.PopulationSize:
+        print("Threshold: " + str(self.SpeciesThreshold))
+        print("Species:" + str(len(self.Species)))
 
     def speciate(self, size):
         # print(self.Species)
@@ -111,8 +151,8 @@ class EvolutionSpeciationDriver:
             child = self.Population[i % survivors].breed(random.choice(self.Population[:survivors]))
             self.Population.append(child)
             self.add_to_specie(child)
-        if not len(self.Species) > self.PopulationSize:
-            print("Species:" + str(len(self.Species)))
+        # if not len(self.Species) > self.PopulationSize:
+        print("Species:" + str(len(self.Species)))
 
     def add_to_specie(self, child):
         remaining = True

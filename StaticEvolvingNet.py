@@ -4,16 +4,11 @@ import math
 import numpy
 
 from MatrixNet import MatrixNet
+from formulas import distance_formula, sigmoid
 
 
-def sigmoid(x):
-    try:
-        return 1.0 / (1.0 + math.e ** -float(x))
-    except:
-        return 0.5
-
-
-sigmoid_Array = numpy.vectorize(sigmoid)
+def distance_diff(x,y):
+    return distance_formula(x - y)
 
 
 def sigmoid_der(x):
@@ -29,7 +24,7 @@ def color_formula(x):
 
 
 class StaticEvolvingNet(MatrixNet):
-    def __init__(self, in_dem, out_dem, genetics_layers, genetics_weights=None, mutability=.5, activation=sigmoid_Array,
+    def __init__(self, in_dem, out_dem, genetics_layers, genetics_weights=None, mutability=.5, activation=sigmoid,
                  activation_der=sigmoid_der_Array, color_formula=color_formula):
         self.InDem = in_dem
         self.OutDem = out_dem
@@ -86,7 +81,4 @@ class StaticEvolvingNet(MatrixNet):
         return number + (0.5 - random.random()) * 2.0 * self.Mutability
 
     def distance(self, net):
-        diff = 0.0
-        for index in range(len(self.WeightArray)):
-            diff += numpy.linalg.norm(self.WeightArray[index] - net.WeightArray[index])
-        return diff
+        return sum(map(distance_diff,self.WeightArray, net.WeightArray))

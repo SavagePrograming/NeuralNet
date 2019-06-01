@@ -3,11 +3,7 @@ from functools import total_ordering
 import numpy, random, math, pygame
 
 
-def sigmoid(x):
-    return 1.0 / (1.0 + math.e ** -float(x))
-
-
-sigmoid_Array = numpy.vectorize(sigmoid)
+from formulas import distance_formula, sigmoid
 
 
 def sigmoid_der(x):
@@ -22,7 +18,7 @@ def color_formula(x):
 
 
 class MatrixNet:
-    def __init__(self, Dem, weight_range, activation=sigmoid_Array, activation_der=sigmoid_der_Array,
+    def __init__(self, Dem, weight_range, activation=sigmoid, activation_der=sigmoid_der_Array,
                  color_formula=color_formula):
         self.InputArray = numpy.array([[0]] * Dem[0])
         self.WeightArray = []
@@ -72,7 +68,7 @@ class MatrixNet:
         # print self.InputArray
 
     def getOut(self):
-        ## self.NodesValueArray[0] = sigmoid_Array(self.WeightArray[0].dot(numpy.reshape(numpy.append(self.InputArray, -1),((len(self.InputArray) + 1), 1) )))
+        ## self.NodesValueArray[0] = sigmoid(self.WeightArray[0].dot(numpy.reshape(numpy.append(self.InputArray, -1),((len(self.InputArray) + 1), 1) )))
         # print(self.WeightArray)
         self.NodesValueArray[0] = self.ActivationFunction(self.WeightArray[0].dot(self.InputArray))
         # self.NodesValueArray[0][-1] = -1
@@ -89,10 +85,10 @@ class MatrixNet:
         # print("Values[0]:" + str(self.NodesValueArray[0]))
         # print("Values[0]:" + str(self.NodesValueArray[0]))
         # print("Values[0]:"+str(self.NodesValueArray[0]))
-        # self.NodesValueArray[0] = sigmoid_Array(self.WeightArray[0].dot(self.InputArray))
+        # self.NodesValueArray[0] = sigmoid(self.WeightArray[0].dot(self.InputArray))
         # self.NodesValueArray[0][-1] = -1
         for i in range(1, len(self.NodesValueArray)):
-            # self.NodesValueArray[i] = sigmoid_Array(self.WeightArray[i].dot(self.NodesValueArray[i -1]))
+            # self.NodesValueArray[i] = sigmoid(self.WeightArray[i].dot(self.NodesValueArray[i -1]))
             self.NodesValueArray[i] = self.ActivationFunction(self.WeightArray[i].dot(
                 numpy.reshape(numpy.append(self.NodesValueArray[i - 1], 1),
                               ((len(self.NodesValueArray[i - 1]) + 1), 1))))
@@ -112,7 +108,7 @@ class MatrixNet:
         # print("Target:" +str(target))
         # print("Real:"+str(self.NodesValueArray[-1]))
         past = 2 * (target - self.NodesValueArray[-1])
-        error = numpy.linalg.norm(past)
+        error = distance_formula(past)
         # print("Inital dif:" + str(past))
         # print target
         for i in range(len(self.NodesValueArray) - 1, 0, -1):

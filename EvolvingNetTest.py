@@ -14,9 +14,11 @@ OUT_DEM = 1
 
 POPULATION_SIZE = 100
 GENERATION_LENGTH = 4
-MUTABILITY = 1.0
+MUTABILITY = 50.0
 SURVIVOR_RATIO = 0.25
-SPECIES_THRESHOLD = 6.0
+SPECIES_THRESHOLD = 5.0
+SISR = .1
+BALANCE = 0.5
 
 WIDTH = 1000
 HEIGHT = 800
@@ -31,7 +33,10 @@ def imitater(ar):
 
 sim = EvolutionSimulation.EvolveSimulation(imitater, IN_DEM, OUT_DEM)
 
-driver = EvolutionSpeciationDriver.EvolutionSpeciationDriver(POPULATION_SIZE, SURVIVOR_RATIO, sim, GENERATION_LENGTH, SPECIES_THRESHOLD, MUTABILITY, evolving_class=StaticEvolvingNet)
+driver = EvolutionSpeciationDriver.EvolutionSpeciationDriver(POPULATION_SIZE, SURVIVOR_RATIO,
+                                                             sim, GENERATION_LENGTH, SPECIES_THRESHOLD,
+                                                             SISR, BALANCE,
+                                                             mutability=MUTABILITY, evolving_class=StaticEvolvingNet)
 
 pygame.init()
 

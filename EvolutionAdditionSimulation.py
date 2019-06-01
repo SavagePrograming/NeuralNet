@@ -1,6 +1,7 @@
 import os
 import random
 
+import math
 import numpy
 import pygame
 
@@ -23,6 +24,8 @@ def bitstonum(bits):
 def add(arr):
     return numtobits((bitstonum(arr[:3]) + bitstonum(arr[3:])), 4)
 
+from formulas import distance_formula
+
 class AdditionSimulation:
     def __init__(self):
         self.InDem = 6
@@ -37,7 +40,7 @@ class AdditionSimulation:
             self.States.append(numtobits(i, 6))
 
     def restart(self):
-        self.count = 0
+        pass
 
 
     def run(self, population):
@@ -49,7 +52,7 @@ class AdditionSimulation:
 
         for Net in population:
             Net.setIn(Input)
-            Fitness.append(numpy.linalg.norm(1.0 - abs(Net.getOutThreshold() - self.Imitator(Input))))
+            Fitness.append(distance_formula(1.0 - abs(Net.getOutThreshold() - self.Imitator(Input))))
 
         self.count += 1
 

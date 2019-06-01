@@ -4,17 +4,7 @@ import math
 import numpy
 
 from MatrixNet import MatrixNet
-
-
-def sigmoid(x):
-    try:
-        return 1.0 / (1.0 + math.e ** -float(x))
-    except:
-        return 0.5
-
-
-sigmoid_Array = numpy.vectorize(sigmoid)
-
+from formulas import sigmoid
 
 def sigmoid_der(x):
     return (1.0 - x) * x
@@ -29,7 +19,7 @@ def color_formula(x):
 
 
 class EvolvingNet(MatrixNet):
-    def __init__(self, in_dem, out_dem, genetics_nodes, genetics_weights, mutability=.5, activation=sigmoid_Array,
+    def __init__(self, in_dem, out_dem, genetics_nodes, genetics_weights, mutability=.5, activation=sigmoid,
                  activation_der=sigmoid_der_Array, color_formula=color_formula):
         self.InDem = in_dem
         self.OutDem = out_dem

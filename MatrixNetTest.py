@@ -1,6 +1,7 @@
 import math
 
 import MatrixNet, numpy, pygame, random
+from formulas import sigmoid
 
 STATE_SIZE = 2
 NUMBER_OF_STATES = 4
@@ -65,10 +66,6 @@ def relu_derivative(x):
 
 
 relu_der_Array = numpy.vectorize(relu_derivative)
-
-
-def sigmoid(x):
-    return 1.0 / (1.0 + math.e ** -float(x))
 
 
 def relu_color_formula(x):

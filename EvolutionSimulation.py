@@ -1,9 +1,11 @@
 import os
 import random
 
+import math
 import numpy
 import pygame
 
+from formulas import distance_formula
 
 class EvolveSimulation:
     def __init__(self, imitator, in_dem, out_dem):
@@ -27,7 +29,7 @@ class EvolveSimulation:
 
         for Net in population:
             Net.setIn(Input)
-            Fitness.append(numpy.linalg.norm(1.0 - abs(Net.getOutThreshold() - self.Imitator(Input))))
+            Fitness.append(distance_formula(1.0 - abs(Net.getOutThreshold() - self.Imitator(Input))))
 
         self.count += 1
 
