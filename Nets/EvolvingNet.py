@@ -1,9 +1,6 @@
 import random
 
-import math
-import numpy
-
-from MatrixNet import MatrixNet
+from Nets.MatrixNet import MatrixNet
 from formulas import sigmoid, sigmoid_der
 
 def color_formula(x):

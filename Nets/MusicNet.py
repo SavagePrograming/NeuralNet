@@ -1,4 +1,5 @@
-import MatrixNet, numpy, pygame, random
+import numpy, pygame, random
+from Nets import MatrixNet
 from formulas import distance_formula
 
 Net = MatrixNet.MatrixNet([4, 4, 4], [0., 0.])

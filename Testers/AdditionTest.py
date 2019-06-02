@@ -1,7 +1,6 @@
-import math
-import EvolutionDivisibleSimulation
-import EvolutionSpeciationDriver
-from StaticEvolvingNet import StaticEvolvingNet
+from Simulations import EvolutionDivisibleSimulation
+from Drivers import EvolutionSpeciationDriver
+from Nets.StaticEvolvingNet import StaticEvolvingNet
 import pygame, random
 
 

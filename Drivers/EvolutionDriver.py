@@ -2,7 +2,7 @@ import random
 
 from numpy import mean, median
 
-from EvolvingNet import EvolvingNet
+from Nets.EvolvingNet import EvolvingNet
 
 
 class EvolutionDriver:

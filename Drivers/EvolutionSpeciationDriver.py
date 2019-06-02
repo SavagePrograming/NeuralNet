@@ -3,7 +3,7 @@ import random
 from math import ceil
 from numpy import mean, median, math
 
-from EvolvingNet import EvolvingNet
+from Nets.EvolvingNet import EvolvingNet
 
 
 def clean(a):

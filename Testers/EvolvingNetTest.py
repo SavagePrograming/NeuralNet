@@ -1,10 +1,7 @@
-import math
-
-import EvolutionDriver, EvolutionSpeciationDriver
-import EvolutionSimulation
-from EvolvingNet import EvolvingNet
-from StaticEvolvingNet import StaticEvolvingNet
-import MatrixNet, numpy, pygame, random
+from Drivers import EvolutionSpeciationDriver
+from Simulations import EvolutionSimulation
+from Nets.StaticEvolvingNet import StaticEvolvingNet
+import pygame, random
 
 STATE_SIZE = 2
 NUMBER_OF_STATES = 6

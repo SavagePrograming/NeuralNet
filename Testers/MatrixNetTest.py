@@ -1,7 +1,5 @@
-import math
-
-import MatrixNet, numpy, pygame, random
-from formulas import sigmoid
+import numpy, pygame, random
+from Nets import MatrixNet
 
 STATE_SIZE = 2
 NUMBER_OF_STATES = 4
