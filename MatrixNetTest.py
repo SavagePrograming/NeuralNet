@@ -36,19 +36,6 @@ print(bitstonum(out))
 def imitater(ar):
     return [1.0] if ar[0] != ar[1] else [0.0]
 
-# input = numtobits(5,5) + numtobits(3,5)
-# print("output: " + str(bitstonum(imitater(input))))
-
-
-tanh_Array = numpy.tanh
-
-
-def tanh_derivative(x):
-    return 1.0 - x ** 2.0
-
-
-tanh_der_Array = numpy.vectorize(tanh_derivative)
-
 
 def tanh_color_formula(x):
     return int((1.0 + x) * 127.5)
@@ -102,8 +89,8 @@ error_array = []
 while KEEP:
     pygame.time.delay(delay)
     # input("-----------------------")
-    Net.getOutThreshold()
-    error_array.append(int((HEIGHT - 100) - Net.learnWithThreshold(Ratio, imitater(Input)) * 50.0))
+    Net.get_out()
+    error_array.append(int((HEIGHT - 100) - Net.learn(Ratio, imitater(Input)) * 50.0))
     if len(error_array) > ERROR_SIZE:
         error_array.pop(0)
     # print(Input)
@@ -261,7 +248,7 @@ while KEEP:
                 Net.setIn(Input)
                 found = False
                 # print("changed")
-    # if numpy.linalg.norm(Net.getOutThreshold() - numpy.reshape(numpy.array(Input), (1, 1))) < .1 and not found:
+    # if numpy.linalg.norm(Net.get_out() - numpy.reshape(numpy.array(Input), (1, 1))) < .1 and not found:
     #     print("Found")
     #     found = True
     StatesIndex = (StatesIndex + 1) % NUMBER_OF_STATES

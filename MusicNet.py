@@ -1,5 +1,5 @@
 import MatrixNet, numpy, pygame, random
-
+from formulas import distance_formula
 
 Net = MatrixNet.MatrixNet([4, 4, 4], [0., 0.])
 NUMBER_OF_STATES = 3
@@ -27,12 +27,12 @@ found = False
 Points = []
 while KEEP:
 
-    Net.learnWithThreshold(Ratio, Input)
-    Net.getOutThreshold()
+    Net.learn(Ratio, Input)
+    Net.get_out()
     Screen.fill([0, 0, 100])
     Net.draw(Screen, 10, 10, 50)
     if Points:
-        d = numpy.linalg.norm(Net.getOutThreshold() - numpy.reshape(numpy.array(Input), (4,1)))
+        d = distance_formula(Net.get_out(), numpy.reshape(numpy.array(Input), (4,1)))
         MAX = max(MAX, max(Points))
         map(drawPoint, range(0, len(Points)), Points, [400. / len(Points)] * len(Points),
             [200. / float(MAX)] * len(Points), [d] * len(Points))
@@ -53,11 +53,11 @@ while KEEP:
                 Net.setIn(Input)
                 found = False
                 # print("changed")
-    Points.append(numpy.linalg.norm(Net.getOutThreshold() - numpy.reshape(numpy.array(Input), (4,1))))
+    Points.append(distance_formula(Net.get_out(), numpy.reshape(numpy.array(Input), (4,1))))
     if len(Points) > 200:
         Points.pop(0)
 
-    # if numpy.linalg.norm(Net.getOutThreshold()- numpy.reshape(numpy.array(Input), (4,1)) ) < .1 and not found:
+    # if numpy.linalg.norm(Net.get_out()- numpy.reshape(numpy.array(Input), (4,1)) ) < .1 and not found:
     #     print "Found", StatesIndex
         # found = True
     StatesIndex = (StatesIndex + 1) % NUMBER_OF_STATES

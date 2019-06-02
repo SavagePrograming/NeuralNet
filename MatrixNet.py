@@ -3,14 +3,7 @@ from functools import total_ordering
 import numpy, random, math, pygame
 
 
-from formulas import distance_formula, sigmoid
-
-
-def sigmoid_der(x):
-    return (1.0 - x) * x
-
-
-sigmoid_der_Array = numpy.vectorize(sigmoid_der)
+from formulas import distance_formula, sigmoid, sigmoid_der
 
 
 def color_formula(x):
@@ -18,14 +11,14 @@ def color_formula(x):
 
 
 class MatrixNet:
-    def __init__(self, Dem, weight_range, activation=sigmoid, activation_der=sigmoid_der_Array,
-                 color_formula=color_formula):
+    def __init__(self, Dem, weight_range, activation=sigmoid, activation_der=sigmoid_der,
+                 color_formula_param=color_formula):
         self.InputArray = numpy.array([[0]] * Dem[0])
         self.WeightArray = []
         self.NodesValueArray = []
         self.ActivationFunction = activation
-        self.ActivationFunctionDerivitive = activation_der
-        self.ColorFormula = color_formula
+        self.activation_function_derivative = activation_der
+        self.ColorFormula = color_formula_param
         self.Dimensions = Dem
         self.Score = 0
 
@@ -65,139 +58,52 @@ class MatrixNet:
                 if array[i] is not None:
                     self.InputArray[i][0] = float(array[i])
 
-        # print self.InputArray
-
-    def getOut(self):
-        ## self.NodesValueArray[0] = sigmoid(self.WeightArray[0].dot(numpy.reshape(numpy.append(self.InputArray, -1),((len(self.InputArray) + 1), 1) )))
-        # print(self.WeightArray)
-        self.NodesValueArray[0] = self.ActivationFunction(self.WeightArray[0].dot(self.InputArray))
-        # self.NodesValueArray[0][-1] = -1
-        for i in range(1, len(self.NodesValueArray)):
-            self.NodesValueArray[i] = self.ActivationFunction(self.WeightArray[i].dot(self.NodesValueArray[i - 1]))
-            # self.NodesValueArray[i][-1] = -1
-        return self.NodesValueArray[-1]
-
-    def getOutThreshold(self):
-        # print self.WeightArray
-        # print("++++++")
+    def get_out(self):
         self.NodesValueArray[0] = self.ActivationFunction(
             self.WeightArray[0].dot(numpy.reshape(numpy.append(self.InputArray, 1), ((len(self.InputArray) + 1), 1))))
-        # print("Values[0]:" + str(self.NodesValueArray[0]))
-        # print("Values[0]:" + str(self.NodesValueArray[0]))
-        # print("Values[0]:"+str(self.NodesValueArray[0]))
-        # self.NodesValueArray[0] = sigmoid(self.WeightArray[0].dot(self.InputArray))
-        # self.NodesValueArray[0][-1] = -1
+
         for i in range(1, len(self.NodesValueArray)):
-            # self.NodesValueArray[i] = sigmoid(self.WeightArray[i].dot(self.NodesValueArray[i -1]))
             self.NodesValueArray[i] = self.ActivationFunction(self.WeightArray[i].dot(
                 numpy.reshape(numpy.append(self.NodesValueArray[i - 1], 1),
                               ((len(self.NodesValueArray[i - 1]) + 1), 1))))
-            # print("Values:"+str(self.NodesValueArray[i]))
-            # self.NodesValueArray[i][-1] = -1
+
         return self.NodesValueArray[-1]
-
-    def learnWithThreshold(self, ratio, target):
-
-        # print(self.InputArray)
-        # print(target)
-        # print("--------------")
-
-        l = len(target)
-
-        target = numpy.reshape(numpy.array([target]), (l, 1))
-        # print("Target:" +str(target))
-        # print("Real:"+str(self.NodesValueArray[-1]))
-        past = 2 * (target - self.NodesValueArray[-1])
-        error = distance_formula(past)
-        # print("Inital dif:" + str(past))
-        # print target
-        for i in range(len(self.NodesValueArray) - 1, 0, -1):
-            # for past_row in past:
-            NodesValueArraytemp = self.NodesValueArray[
-                i]  # numpy.reshape(numpy.append(self.NodesValueArray[i], -1), ((len(self.NodesValueArray[i]) + 1), 1))
-            # print("NodesValueArraytemp:" + str(NodesValueArraytemp))
-
-            NodesValueArraytemp2 = numpy.reshape(numpy.append(self.NodesValueArray[i - 1], 1),
-                                                 (1, len(self.NodesValueArray[i - 1]) + 1))
-            # print("NodesValueArraytemp2:" + str(NodesValueArraytemp2))
-
-            sigder = self.ActivationFunctionDerivitive(NodesValueArraytemp)
-            # print("sigmoid div:" + str(sigder))
-
-            sigder_with_past = sigder * past
-            # print("sigder_with_past:" + str(sigder))
-
-            current = sigder_with_past.dot(NodesValueArraytemp2)
-            # print("current:" + str(current))
-
-            # print("weights:" + str(self.WeightArray[i]))
-            past = numpy.transpose(sigder_with_past).dot(self.WeightArray[i])
-            # past = (numpy.array([[1] * len(current)])).dot(current)
-            # print("|-----")
-
-            # print("past:" + str(past))
-            # print("other past:" + str(other_past))
-            # past = other_past
-            # past /= 4
-            # print past
-
-            past = numpy.reshape(past, (len(past[0]), 1))[:-1]
-            # print("past reshaped:" + str(past))
-
-            current = current * ratio
-            # print("Weight shifts dif:" + str(current))
-
-            self.WeightArray[i] = self.WeightArray[i] + current
-            # print("Weight array", i, self.WeightArray[i])
-        NodesValueArraytemp = self.NodesValueArray[0]
-        # print("Current Value:" + str(NodesValueArraytemp))
-        NodesValueArraytemp2 = numpy.reshape(numpy.append(self.InputArray, 1),
-                                             (1, len(self.InputArray) + 1))
-        # print("Current Value with thresh:" + str(NodesValueArraytemp2))
-
-        sig = self.ActivationFunctionDerivitive(NodesValueArraytemp)
-
-        # print("new past?:" + str(self.ActivationFunctionDerivitive(NodesValueArraytemp).dot(self.WeightArray[0])))
-        sig_with_past = sig * past
-
-        current = sig_with_past.dot(NodesValueArraytemp2)
-
-        # print("Weight shifts with past:" + str(current))
-
-        current = current * ratio
-        # print("Weight shifts post ration:" + str(current))
-        self.WeightArray[0] = self.WeightArray[0] + current
-        # print("Weight array", 0, self.WeightArray[0])
-
-        return error
 
     def learn(self, ratio, target):
         l = len(target)
 
         target = numpy.reshape(numpy.array([target]), (l, 1))
-        past = target - self.NodesValueArray[-1]
+
+        past = numpy.multiply(2, (numpy.subtract(target, self.NodesValueArray[-1])))
+        error = distance_formula(target, self.NodesValueArray[-1])
 
         for i in range(len(self.NodesValueArray) - 1, 0, -1):
-            # for past_row in past:
-            sig = ((numpy.array([[1.0]] * len(self.NodesValueArray[i])) - self.NodesValueArray[i]) *
-                   self.NodesValueArray[i])
 
-            current = self.ActivationFunctionDerivitive(self.NodesValueArray[i]).dot(
-                numpy.reshape(self.NodesValueArray[i - 1], (1, len(self.NodesValueArray[i - 1]))))
+            NodesValueArraytemp = self.NodesValueArray[i]
 
-            current = current * past
-            past = (numpy.array([[1] * len(current)])).dot(current)
+            NodesValueArraytemp2 = numpy.reshape(numpy.append(self.NodesValueArray[i - 1], 1),
+                                                 (1, len(self.NodesValueArray[i - 1]) + 1))
 
-            past = numpy.reshape(past, (len(past[0]), 1))
+            sigder = self.activation_function_derivative(NodesValueArraytemp)
+            sigder_with_past = numpy.multiply(sigder, past)
+            current = sigder_with_past.dot(NodesValueArraytemp2)
+            past = numpy.transpose(sigder_with_past).dot(self.WeightArray[i])
+            past = numpy.reshape(past, (len(past[0]), 1))[:-1]
+            current = numpy.array(current, ratio)
+            self.WeightArray[i] = numpy.add(self.WeightArray[i], current)
 
-            current = current * ratio
-            self.WeightArray[i] = self.WeightArray[i] + current
+        NodesValueArraytemp = self.NodesValueArray[0]
 
-        current = self.ActivationFunctionDerivitive(self.NodesValueArray[0]).dot(
-            numpy.reshape(self.InputArray, (1, len(self.InputArray)))) * past
+        NodesValueArraytemp2 = numpy.reshape(numpy.append(self.InputArray, 1),
+                                             (1, len(self.InputArray) + 1))
+        sig = self.activation_function_derivative(NodesValueArraytemp)
+        sig_with_past = numpy.array(sig, past)
 
-        current = current * ratio
-        self.WeightArray[0] = self.WeightArray[0] + current
+        current = sig_with_past.dot(NodesValueArraytemp2)
+        current = numpy.multiply(current, ratio)
+        self.WeightArray[0] = numpy.add(self.WeightArray[0], current)
+
+        return error
 
     def draw(self, screen, x, y, width, height, scale_dot=5):
         scale_y = (height - scale_dot * 2) // max(self.Dimensions)

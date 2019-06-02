@@ -52,7 +52,7 @@ class AdditionSimulation:
 
         for Net in population:
             Net.setIn(Input)
-            Fitness.append(distance_formula(1.0 - abs(Net.getOutThreshold() - self.Imitator(Input))))
+            Fitness.append(numpy.linalg.norm(numpy.subtract(1.0, numpy.abs(numpy.subtract(Net.get_out(), self.Imitator(Input))))))
 
         self.count += 1
 

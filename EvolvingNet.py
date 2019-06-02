@@ -4,15 +4,7 @@ import math
 import numpy
 
 from MatrixNet import MatrixNet
-from formulas import sigmoid
-
-def sigmoid_der(x):
-    return (1.0 - x) * x
-
-
-sigmoid_der_Array = numpy.vectorize(sigmoid_der)
-
-
+from formulas import sigmoid, sigmoid_der
 
 def color_formula(x):
     return [int(x * 255.), 255, int(x * 255.)]
@@ -20,7 +12,7 @@ def color_formula(x):
 
 class EvolvingNet(MatrixNet):
     def __init__(self, in_dem, out_dem, genetics_nodes, genetics_weights, mutability=.5, activation=sigmoid,
-                 activation_der=sigmoid_der_Array, color_formula=color_formula):
+                 activation_der=sigmoid_der, color_formula_param=color_formula_param):
         self.InDem = in_dem
         self.OutDem = out_dem
         self.Mutability = mutability
@@ -30,7 +22,7 @@ class EvolvingNet(MatrixNet):
         for layer in range(len(genetics_nodes)):
             Dem.append(len(genetics_nodes[layer]))
         Dem.append(out_dem)
-        MatrixNet.__init__(self, Dem, [0.0, 0.0], activation, activation_der, color_formula)
+        MatrixNet.__init__(self, Dem, [0.0, 0.0], activation, activation_der, color_formula_param)
 
         for layer in range(len(genetics_nodes)):
             if len(genetics_weights) > layer:

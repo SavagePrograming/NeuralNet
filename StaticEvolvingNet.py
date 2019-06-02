@@ -4,19 +4,7 @@ import math
 import numpy
 
 from MatrixNet import MatrixNet
-from formulas import distance_formula, sigmoid
-
-
-def distance_diff(x,y):
-    return distance_formula(x - y)
-
-
-def sigmoid_der(x):
-    return (1.0 - x) * x
-
-
-sigmoid_der_Array = numpy.vectorize(sigmoid_der)
-
+from formulas import distance_formula, sigmoid, sigmoid_der
 
 
 def color_formula(x):
@@ -25,7 +13,7 @@ def color_formula(x):
 
 class StaticEvolvingNet(MatrixNet):
     def __init__(self, in_dem, out_dem, genetics_layers, genetics_weights=None, mutability=.5, activation=sigmoid,
-                 activation_der=sigmoid_der_Array, color_formula=color_formula):
+                 activation_der=sigmoid_der, color_formula_param=color_formula_param):
         self.InDem = in_dem
         self.OutDem = out_dem
         self.Mutability = mutability
@@ -37,7 +25,7 @@ class StaticEvolvingNet(MatrixNet):
             Dem.append(max(in_dem, out_dem))
         Dem.append(out_dem)
 
-        MatrixNet.__init__(self, Dem, [self.Mutability, -self.Mutability], activation, activation_der, color_formula)
+        MatrixNet.__init__(self, Dem, [self.Mutability, -self.Mutability], activation, activation_der, color_formula_param)
 
         if genetics_weights is not None:
             self.WeightArray = genetics_weights
@@ -81,4 +69,4 @@ class StaticEvolvingNet(MatrixNet):
         return number + (0.5 - random.random()) * 2.0 * self.Mutability
 
     def distance(self, net):
-        return sum(map(distance_diff,self.WeightArray, net.WeightArray))
+        return sum(map(distance_formula,self.WeightArray, net.WeightArray))
