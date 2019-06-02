@@ -10,13 +10,13 @@ STATE_SIZE = 2
 NUMBER_OF_STATES = 6
 
 IN_DEM = STATE_SIZE
-OUT_DEM = 1
+OUT_DEM = 2
 
-POPULATION_SIZE = 100
+POPULATION_SIZE = 500
 GENERATION_LENGTH = 4
-MUTABILITY = 50.0
+MUTABILITY = 5.0
 SURVIVOR_RATIO = 0.25
-SPECIES_THRESHOLD = 5.0
+SPECIES_THRESHOLD = 20.0
 SISR = .1
 BALANCE = 0.5
 
@@ -28,7 +28,7 @@ ERROR_SIZE = 500
 
 
 def imitater(ar):
-    return 1.0 if ar[0] != ar[1] else 0.0
+    return [1.0, 0.0] if ar[0] != ar[1] else [0.0, 1.0]
 
 
 sim = EvolutionSimulation.EvolveSimulation(imitater, IN_DEM, OUT_DEM)
@@ -75,7 +75,7 @@ while KEEP:
             print("Down")
     for i in range(len(error_array)):
         pygame.draw.circle(Screen, [255, 0, 0],
-                           [int(10 + (WIDTH - 10) * (len(error_array) - i) / len(error_array)),
+                           [int(10 + (WIDTH - 10) * i / len(error_array)),
                             int(HEIGHT - 100 * error_array[i][0])], 5)
     pygame.display.flip()
     for event in pygame.event.get():

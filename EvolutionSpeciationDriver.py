@@ -37,7 +37,7 @@ class EvolutionSpeciationDriver:
 
         self.Population = []
         for i in range(self.PopulationSize):
-            child = self.EvolvingClass(self.InDem, self.OutDem, 2, mutability=mutability)
+            child = self.EvolvingClass(self.InDem, self.OutDem, 1, mutability=mutability)
             self.Population.append(child)
             self.add_to_specie(child)
 

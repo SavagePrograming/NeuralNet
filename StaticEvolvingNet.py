@@ -13,7 +13,7 @@ def color_formula(x):
 
 class StaticEvolvingNet(MatrixNet):
     def __init__(self, in_dem, out_dem, genetics_layers, genetics_weights=None, mutability=.5, activation=sigmoid,
-                 activation_der=sigmoid_der, color_formula_param=color_formula_param):
+                 activation_der=sigmoid_der, color_formula_param=color_formula):
         self.InDem = in_dem
         self.OutDem = out_dem
         self.Mutability = mutability

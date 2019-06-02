@@ -1,17 +1,17 @@
 import math
-import EvolutionAdditionSimulation
+import EvolutionDivisibleSimulation
 import EvolutionSpeciationDriver
 from StaticEvolvingNet import StaticEvolvingNet
 import pygame, random
 
 
 POPULATION_SIZE = 1000
-GENERATION_LENGTH = 20
-MUTABILITY = 10.0
+GENERATION_LENGTH = 1000
+MUTABILITY = 50.0
 SURVIVOR_RATIO = 0.25
 SISR = .1
-SPECIES_THRESHOLD = 175.0
-BALANCE_FOCUS = 5.0
+SPECIES_THRESHOLD = 150.0
+BALANCE_FOCUS = 10.0
 
 
 WIDTH = 1000
@@ -20,12 +20,7 @@ DISPLAY_ROW_SIZE = 1
 DISPLAY_ROW_COUNT = 1
 ERROR_SIZE = 500
 
-
-def imitater(ar):
-    return 1.0 if ar[0] != ar[1] else 0.0
-
-
-sim = EvolutionAdditionSimulation.AdditionSimulation()
+sim = EvolutionDivisibleSimulation.DivisionSimulation()
 
 driver = EvolutionSpeciationDriver.EvolutionSpeciationDriver(POPULATION_SIZE, SURVIVOR_RATIO, sim,
                                                              GENERATION_LENGTH, SPECIES_THRESHOLD, SISR,

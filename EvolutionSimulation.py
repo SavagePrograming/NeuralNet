@@ -36,17 +36,17 @@ class EvolveSimulation:
         return numpy.array(Fitness)
 
     def run_generations(self, population, generation):
-        Fitness = numpy.zeros((len(population)))
+        fitness = numpy.zeros((len(population)))
         for i in range(generation):
-            Fitness += self.run(population)
-        Fitness /= generation
-        return Fitness
+            fitness = numpy.add(fitness, self.run(population))
+        fitness = numpy.divide(fitness, generation)
+        return fitness
 
     def run_generations_visual(self, population, generation, driver, screen, row_size, row_count, x, y, width, height, dot_size=10):
-        Fitness = numpy.zeros((len(population)))
+        fitness = numpy.zeros((len(population)))
         for i in range(generation):
 
-            Fitness += self.run(population)
+            fitness = numpy.add(fitness, self.run(population))
 
             driver.draw(screen, row_size, row_count, x, y, width, height, dot_size=10)
             pygame.display.flip()
@@ -54,5 +54,5 @@ class EvolveSimulation:
             # for event in pygame.event.get():
             #     if event.type == pygame.QUIT:
             #         pass
-        Fitness /= generation
-        return Fitness
+        fitness = numpy.divide(fitness, generation)
+        return fitness

@@ -19,16 +19,16 @@ def bitstonum(bits):
 
 
 def add(arr):
-    return numtobits((bitstonum(arr[:3]) + bitstonum(arr[3:])), 4)
+    return numpy.multiply(arr[:3], arr[3:])
 
 
 from formulas import distance_formula
 
 
-class AdditionSimulation:
+class DivisionSimulation:
     def __init__(self):
         self.InDem = 6
-        self.OutDem = 4
+        self.OutDem = 3
 
         self.Imitator = add
         self.count = 0
