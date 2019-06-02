@@ -7,7 +7,7 @@ from formulas import distance_formula, sigmoid, sigmoid_der
 
 
 def color_formula(x):
-    return [255 - int(x * 255.), 255, 255 - int(x * 255.)]
+    return [0, int(x * 255.), 0]
 
 
 class MatrixNet:

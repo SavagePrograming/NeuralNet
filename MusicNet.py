@@ -44,46 +44,15 @@ while KEEP:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_DOWN:
                 Ratio -= .1
-                # print(Ratio)
             elif event.key == pygame.K_UP:
                 Ratio += .1
-                # print(Ratio)
             elif event.key == pygame.K_SPACE:
                 Input = [random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])]
                 Net.setIn(Input)
                 found = False
-                # print("changed")
     Points.append(distance_formula(Net.get_out(), numpy.reshape(numpy.array(Input), (4,1))))
     if len(Points) > 200:
         Points.pop(0)
-
-    # if numpy.linalg.norm(Net.get_out()- numpy.reshape(numpy.array(Input), (4,1)) ) < .1 and not found:
-    #     print "Found", StatesIndex
-        # found = True
     StatesIndex = (StatesIndex + 1) % NUMBER_OF_STATES
     Input = States[StatesIndex]
     Net.setIn(Input)
-    # KEEP = False
-
-    # Input = [random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])]
-    # Net.setIn(Input)
-# Net.learn(.5, [[1], [1], [0], [1]])
-
-# print "sucess"
-# while  KEEP:
-#
-#     # Net.learn(Ratio, Input)
-#     # Net.getOut()
-#     Screen.fill([0, 0, 100])
-#     Net.draw(Screen, 10, 10, 50)
-#     pygame.display.flip()
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             KEEP = False
-#         # elif event.type == pygame.KEYDOWN:
-#         #     if event.key == pygame.K_DOWN:
-#         #         Ratio -= .1
-#         #         print Ratio
-#         #     elif event.key == pygame.K_UP:
-#         #         Ratio += .1
-#         #         print Ratio

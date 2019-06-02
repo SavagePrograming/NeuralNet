@@ -1,20 +1,24 @@
 import random
 
 from math import ceil
-from numpy import mean, median
+from numpy import mean, median, math
 
 from EvolvingNet import EvolvingNet
+
+
 def clean(a):
     i = 0
     while i < len(a):
         if not a[i]:
             del a[i]
         else:
-            i+= 1
+            i += 1
+
 
 class EvolutionSpeciationDriver:
     def __init__(self, population_size, survivor_ratio, simulation,
-                 generation_size, species_threshold, species_independent_survivor_ratio, balancing_focus, mutability=0.5,
+                 generation_size, species_threshold, species_independent_survivor_ratio, balancing_focus,
+                 mutability=0.5,
                  evolving_class=EvolvingNet):
         self.BalanceTop = .5
         self.BalanceBottom = .25
@@ -37,7 +41,7 @@ class EvolutionSpeciationDriver:
 
         self.Population = []
         for i in range(self.PopulationSize):
-            child = self.EvolvingClass(self.InDem, self.OutDem, 1, mutability=mutability)
+            child = self.EvolvingClass(self.InDem, self.OutDem, self.Simulation.Layers, mutability=mutability)
             self.Population.append(child)
             self.add_to_specie(child)
 
@@ -58,47 +62,42 @@ class EvolutionSpeciationDriver:
         self.Minimum = min(Fitness)
 
     def draw(self, screen, row_size, row_count, x, y, width, height, dot_size=10):
+
+        row_count = int(math.sqrt(len(self.Species)))
+        row_size = math.ceil(len(self.Species) / row_count)
         for i in range(row_count * row_size):
-            self.Population[i].draw(screen,
-                                    x + (i % row_size) * (width // row_size),
-                                    y + (i // row_size) * (height // row_count),
-                                    width // row_size,
-                                    height // row_count,
-                                    dot_size)
+            if len(self.Species) > i:
+                self.Species[i][0].draw(screen,
+                                        x + (i % row_size) * (width // row_size),
+                                        y + (i // row_size) * (height // row_count),
+                                        width // row_size,
+                                        height // row_count,
+                                        dot_size)
 
     def run_visual(self, screen, row_size, row_count, x, y, width, height, dot_size=10):
         self.Simulation.restart()
         Fitness = self.Simulation.run_generations_visual(self.Population, self.GenerationSize, self, screen, row_size,
-                                                       row_count, x, y, width, height, dot_size)
+                                                         row_count, x, y, width, height, dot_size)
         self.Average = mean(Fitness)
         self.Median = median(Fitness)
         self.Maximum = max(Fitness)
         self.Minimum = min(Fitness)
         self.repopulate(Fitness)
 
-    def draw(self, screen, row_size, row_count, x, y, width, height, dot_size=10):
-        for i in range(row_count * row_size):
-            self.Population[i].draw(screen,
-                                    x + (i % row_size) * (width // row_size),
-                                    y + (i // row_size) * (height // row_count),
-                                    width // row_size,
-                                    height // row_count,
-                                    dot_size)
-
     def repopulate(self, Fitness):
-        survivors = int(self.PopulationSize * self.SurvivorRatio) - ceil(self.PopulationSize*self.SISR)
+        survivors = int(self.PopulationSize * self.SurvivorRatio) - ceil(self.PopulationSize * self.SISR)
         for i in range(len(Fitness)):
             self.Population[i].Score = Fitness[i]
         SIS = []
         if self.SISR < .25:
-            for i in range(ceil(self.PopulationSize*self.SISR)):
+            for i in range(ceil(self.PopulationSize * self.SISR)):
                 MAX = max(self.Population)
                 self.Population.remove(MAX)
                 SIS.append(MAX)
         else:
             self.Population.sort(reverse=True)
-            SIS = self.Population[:ceil(self.PopulationSize*self.SISR)]
-            self.Population = self.Population[ceil(self.PopulationSize*self.SISR):]
+            SIS = self.Population[:ceil(self.PopulationSize * self.SISR)]
+            self.Population = self.Population[ceil(self.PopulationSize * self.SISR):]
 
         for s in range(len(self.Species)):
             size = len(self.Species[s])
@@ -132,11 +131,13 @@ class EvolutionSpeciationDriver:
                 self.speciate(self.PopulationSize - int(self.PopulationSize * self.SurvivorRatio))
 
     def respeciate(self, size):
-        # print(self.Species)
         survivors = len(self.Population)
         self.Species = []
         for i in range(size):
-            child = self.Population[i % survivors].breed(random.choice(self.Population[:survivors]))
+            if random.random() < .5:
+                child = self.Population[i % survivors].breed(random.choice(self.Population[:survivors]))
+            else:
+                child = self.Population[i % survivors].replicate()
             self.Population.append(child)
         for child in self.Population:
             self.add_to_specie(child)
@@ -145,7 +146,6 @@ class EvolutionSpeciationDriver:
         print("Species:" + str(len(self.Species)))
 
     def speciate(self, size):
-        # print(self.Species)
         survivors = len(self.Population)
         for i in range(size):
             child = self.Population[i % survivors].breed(random.choice(self.Population[:survivors]))

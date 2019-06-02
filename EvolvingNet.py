@@ -105,6 +105,13 @@ class EvolvingNet(MatrixNet):
 
         return newNet
 
+    def replicate(self):
+
+        newNet = EvolvingNet(self.InDem, self.OutDem,
+                             self.Genetics[0], self.Genetics[1],
+                             mutability=self.Mutability)
+        return newNet
+
     def mutate(self, number):
         return number + (0.5 - random.random()) * 2.0 * self.Mutability
 

@@ -70,7 +70,7 @@ class AdditionSimulation:
         for i in range(generation):
             fitness = numpy.add(fitness, self.run(population))
 
-            driver.draw(screen, row_size, row_count, x, y, width, height, dot_size=10)
+            driver.draw(screen, row_size, row_count, x, y, width, height, dot_size=dot_size)
             pygame.display.flip()
 
         fitness = numpy.divide(fitness, generation)

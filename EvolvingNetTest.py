@@ -68,11 +68,7 @@ while KEEP:
     Screen.fill([0, 0, 0])
     driver.draw(Screen, DISPLAY_ROW_SIZE, DISPLAY_ROW_COUNT, 0, 0, WIDTH, HEIGHT - 200, 10)
     pygame.draw.line(Screen, [255, 255, 255], [0, HEIGHT - 200], [WIDTH, HEIGHT - 200])
-    if len(error_array) > 2:
-        print(error_array[-2][0])
-        print(error_array[-1][0])
-        if error_array[-2][0] > error_array[-1][0]:
-            print("Down")
+
     for i in range(len(error_array)):
         pygame.draw.circle(Screen, [255, 0, 0],
                            [int(10 + (WIDTH - 10) * i / len(error_array)),

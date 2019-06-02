@@ -7,8 +7,9 @@ from MatrixNet import MatrixNet
 from formulas import distance_formula, sigmoid, sigmoid_der
 
 
+
 def color_formula(x):
-    return [255 - int(x * 255.), 255, 255 -int(x * 255.)]
+    return [0, int(x * 255.), 0]
 
 
 class StaticEvolvingNet(MatrixNet):
@@ -44,8 +45,8 @@ class StaticEvolvingNet(MatrixNet):
             for j in range(len(self.WeightArray[i])):
                 newWeights[i].append([])
                 for k in range(len(self.WeightArray[i][j])):
-                    newWeights[i][j].append(self.mutate(random.choice([self.WeightArray[i][j][k],
-                                                                      evolvingNet2.WeightArray[i][j][k]])))
+                    newWeights[i][j].append(random.choice([self.WeightArray[i][j][k],
+                                                                      evolvingNet2.WeightArray[i][j][k]]))
             newWeights[i] = numpy.array(newWeights[i])
 
         newNet = StaticEvolvingNet(self.InDem, self.OutDem, self.Layers, genetics_weights=newWeights)

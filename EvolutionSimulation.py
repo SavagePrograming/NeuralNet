@@ -48,7 +48,7 @@ class EvolveSimulation:
 
             fitness = numpy.add(fitness, self.run(population))
 
-            driver.draw(screen, row_size, row_count, x, y, width, height, dot_size=10)
+            driver.draw(screen, row_size, row_count, x, y, width, height, dot_size=dot_size)
             pygame.display.flip()
 
             # for event in pygame.event.get():

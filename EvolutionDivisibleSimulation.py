@@ -19,16 +19,17 @@ def bitstonum(bits):
 
 
 def add(arr):
-    return numpy.multiply(arr[:3], arr[3:])
+    return numpy.ceil(numpy.divide(numpy.add(arr[:3], arr[3:]), 2.0))
 
 
 from formulas import distance_formula
 
 
 class DivisionSimulation:
-    def __init__(self):
+    def __init__(self, layers):
         self.InDem = 6
         self.OutDem = 3
+        self.Layers = layers
 
         self.Imitator = add
         self.count = 0
@@ -70,7 +71,8 @@ class DivisionSimulation:
         for i in range(generation):
             fitness = numpy.add(fitness, self.run(population))
 
-            driver.draw(screen, row_size, row_count, x, y, width, height, dot_size=10)
+            driver.draw(screen, row_size, row_count, x, y, width, height, dot_size=dot_size)
+
             pygame.display.flip()
 
         fitness = numpy.divide(fitness, generation)
