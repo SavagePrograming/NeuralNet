@@ -48,7 +48,7 @@ class AdditionSimulation:
         input_state = self.States[states_index]
 
         for Net in population:
-            Net.setIn(input_state)
+            Net.set_in(input_state)
             fitness.append(numpy.linalg.norm(numpy.subtract(1.0,
                                                             numpy.abs(numpy.subtract(Net.get_out(),
                                                                                      self.Imitator(input_state))))))
@@ -64,13 +64,13 @@ class AdditionSimulation:
         fitness = numpy.divide(fitness, generation)
         return fitness
 
-    def run_generations_visual(self, population, generation, driver, screen, row_size, row_count, x, y, width, height,
+    def run_generations_visual(self, population, generation, driver, screen, x, y, width, height,
                                dot_size=10):
         fitness = numpy.zeros((len(population)))
         for i in range(generation):
             fitness = numpy.add(fitness, self.run(population))
 
-            driver.draw(screen, row_size, row_count, x, y, width, height, dot_size=dot_size)
+            driver.draw(screen, x, y, width, height, dot_size=dot_size)
             pygame.display.flip()
 
         fitness = numpy.divide(fitness, generation)

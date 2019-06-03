@@ -61,7 +61,7 @@ class EvolutionSpeciationDriver:
         self.Maximum = max(Fitness)
         self.Minimum = min(Fitness)
 
-    def draw(self, screen, row_size, row_count, x, y, width, height, dot_size=10):
+    def draw(self, screen, x, y, width, height, dot_size=10):
 
         row_count = int(math.sqrt(len(self.Species)))
         row_size = math.ceil(len(self.Species) / row_count)
@@ -74,10 +74,9 @@ class EvolutionSpeciationDriver:
                                         height // row_count,
                                         dot_size)
 
-    def run_visual(self, screen, row_size, row_count, x, y, width, height, dot_size=10):
+    def run_visual(self, screen, x, y, width, height, dot_size=10):
         self.Simulation.restart()
-        Fitness = self.Simulation.run_generations_visual(self.Population, self.GenerationSize, self, screen, row_size,
-                                                         row_count, x, y, width, height, dot_size)
+        Fitness = self.Simulation.run_generations_visual(self.Population, self.GenerationSize, self, screen, x, y, width, height, dot_size)
         self.Average = mean(Fitness)
         self.Median = median(Fitness)
         self.Maximum = max(Fitness)
@@ -102,7 +101,7 @@ class EvolutionSpeciationDriver:
         for s in range(len(self.Species)):
             size = len(self.Species[s])
             for net in self.Species[s]:
-                net.Score /= ceil(size / 4)
+                net.Score /= size
         self.Population.sort(reverse=True)
         self.Population = self.Population[:survivors]
         self.Population = SIS + self.Population
@@ -148,7 +147,11 @@ class EvolutionSpeciationDriver:
     def speciate(self, size):
         survivors = len(self.Population)
         for i in range(size):
-            child = self.Population[i % survivors].breed(random.choice(self.Population[:survivors]))
+            if random.random() < .5:
+                child = self.Population[i % survivors].breed(random.choice(self.Population[:survivors]))
+            else:
+                child = self.Population[i % survivors].replicate()
+            # child = self.Population[i % survivors].breed(random.choice(self.Population[:survivors]))
             self.Population.append(child)
             self.add_to_specie(child)
         # if not len(self.Species) > self.PopulationSize:

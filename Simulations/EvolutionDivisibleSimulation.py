@@ -49,7 +49,7 @@ class DivisionSimulation:
         input_state = self.States[states_index]
 
         for Net in population:
-            Net.setIn(input_state)
+            Net.set_in(input_state)
             fitness.append(numpy.linalg.norm(numpy.subtract(1.0,
                                                             numpy.abs(numpy.subtract(Net.get_out(),
                                                                                      self.Imitator(input_state))))))

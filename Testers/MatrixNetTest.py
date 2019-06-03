@@ -75,7 +75,7 @@ States = [[0.0, 1.0],
           [0.0, 0.0]]
 StatesIndex = 0
 Input = States[StatesIndex]
-Net.setIn(Input)
+Net.set_in(Input)
 found = False
 delay = 0
 error_array = []
@@ -237,9 +237,9 @@ while KEEP:
 
             elif event.key == pygame.K_SPACE:
                 Input = [random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])]
-                Net.setIn(Input)
+                Net.set_in(Input)
                 found = False
 
     StatesIndex = (StatesIndex + 1) % NUMBER_OF_STATES
     Input = States[StatesIndex]
-    Net.setIn(Input)
+    Net.set_in(Input)

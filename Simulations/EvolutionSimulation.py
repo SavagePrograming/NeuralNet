@@ -8,10 +8,11 @@ import pygame
 from formulas import distance_formula
 
 class EvolveSimulation:
-    def __init__(self, imitator, in_dem, out_dem):
+    def __init__(self, imitator, in_dem, out_dem, layers):
         self.InDem = in_dem
         self.OutDem = out_dem
         self.Imitator = imitator
+        self.Layers = layers
         self.count = 0
 
         self.States = [[0,1], [1,1],[1,0],[0,0]]
@@ -28,7 +29,7 @@ class EvolveSimulation:
         Input = self.States[StatesIndex]
 
         for Net in population:
-            Net.setIn(Input)
+            Net.set_in(Input)
             Fitness.append(numpy.linalg.norm(numpy.subtract(1.0, abs(numpy.subtract(Net.get_out(), self.Imitator(Input))))))
 
         self.count += 1
@@ -42,13 +43,13 @@ class EvolveSimulation:
         fitness = numpy.divide(fitness, generation)
         return fitness
 
-    def run_generations_visual(self, population, generation, driver, screen, row_size, row_count, x, y, width, height, dot_size=10):
+    def run_generations_visual(self, population, generation, driver, screen, x, y, width, height, dot_size=10):
         fitness = numpy.zeros((len(population)))
         for i in range(generation):
 
             fitness = numpy.add(fitness, self.run(population))
 
-            driver.draw(screen, row_size, row_count, x, y, width, height, dot_size=dot_size)
+            driver.draw(screen, x, y, width, height, dot_size=dot_size)
             pygame.display.flip()
 
             # for event in pygame.event.get():

@@ -22,7 +22,7 @@ States = [[1,1,1,1],[1,1,0,0], [0,0,0,0]]
 #     States.append([random.choice([1, 0]), random.choice([1,0]), random.choice([1,0]), random.choice([1,0])])
 StatesIndex = 0
 Input = States[StatesIndex]
-Net.setIn(Input)
+Net.set_in(Input)
 Ratio = 0.1
 found = False
 Points = []
@@ -49,11 +49,11 @@ while KEEP:
                 Ratio += .1
             elif event.key == pygame.K_SPACE:
                 Input = [random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])]
-                Net.setIn(Input)
+                Net.set_in(Input)
                 found = False
     Points.append(distance_formula(Net.get_out(), numpy.reshape(numpy.array(Input), (4,1))))
     if len(Points) > 200:
         Points.pop(0)
     StatesIndex = (StatesIndex + 1) % NUMBER_OF_STATES
     Input = States[StatesIndex]
-    Net.setIn(Input)
+    Net.set_in(Input)

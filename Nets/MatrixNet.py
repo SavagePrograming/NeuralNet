@@ -52,7 +52,7 @@ class MatrixNet:
             self.WeightArray.append(numpy.array(Weight_array))
             self.NodesValueArray.append(numpy.array(Node_array))
 
-    def setIn(self, array):
+    def set_in(self, array):
         if len(array) == len(self.InputArray):
             for i in range(0, len(array)):
                 if array[i] is not None:
