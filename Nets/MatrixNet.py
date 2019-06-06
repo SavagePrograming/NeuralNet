@@ -56,31 +56,39 @@ class MatrixNet:
         if len(array) == len(self.InputArray):
             for i in range(0, len(array)):
                 if array[i] is not None:
-                    self.InputArray[i][0] = float(array[i])
+                    self.InputArray[i][0] = array[i]
 
     def get_out(self):
+        # print("MATRIX INPUT:" + str(self.InputArray))
         self.NodesValueArray[0] = self.ActivationFunction(
-            self.WeightArray[0].dot(numpy.reshape(numpy.append(self.InputArray, 1), ((len(self.InputArray) + 1), 1))))
-
+            self.WeightArray[0].dot(numpy.reshape(numpy.append(self.InputArray, 1.0), ((len(self.InputArray) + 1), 1))))
+        # print("MATRIX IN:" + str(self.NodesValueArray[0]))
         for i in range(1, len(self.NodesValueArray)):
             self.NodesValueArray[i] = self.ActivationFunction(self.WeightArray[i].dot(
-                numpy.reshape(numpy.append(self.NodesValueArray[i - 1], 1),
+                numpy.reshape(numpy.append(self.NodesValueArray[i - 1], 1.0),
                               ((len(self.NodesValueArray[i - 1]) + 1), 1))))
 
+        #     print("MATRIX IN:" + str(self.NodesValueArray[i]))
+        # print("MATRIX OUT:" + str(self.NodesValueArray[-1]))
         return self.NodesValueArray[-1]
 
     def learn(self, ratio, target):
         l = len(target)
 
         target = numpy.reshape(numpy.array([target]), (l, 1))
+        # print("MATRIX TARGET" + str(target))
+        # print("MATRIX ACT:" + str(self.NodesValueArray[-1]))
 
-        past = numpy.multiply(2, (numpy.subtract(target, self.NodesValueArray[-1])))
+        past = numpy.multiply(2.0, (numpy.subtract(target, self.NodesValueArray[-1])))
+
+        # print("MATRIX DIFF:" + str(past))
+
         error = distance_formula(target, self.NodesValueArray[-1])
-
+        # print("PAST")
         for i in range(len(self.NodesValueArray) - 1, 0, -1):
 
             NodesValueArraytemp = self.NodesValueArray[i]
-
+            # print(past)
             NodesValueArraytemp2 = numpy.reshape(numpy.append(self.NodesValueArray[i - 1], 1),
                                                  (1, len(self.NodesValueArray[i - 1]) + 1))
 
@@ -89,15 +97,15 @@ class MatrixNet:
             current = sigder_with_past.dot(NodesValueArraytemp2)
             past = numpy.transpose(sigder_with_past).dot(self.WeightArray[i])
             past = numpy.reshape(past, (len(past[0]), 1))[:-1]
-            current = numpy.array(current, ratio)
+            current = numpy.multiply(current, ratio)
             self.WeightArray[i] = numpy.add(self.WeightArray[i], current)
 
         NodesValueArraytemp = self.NodesValueArray[0]
-
+        # print(past)
         NodesValueArraytemp2 = numpy.reshape(numpy.append(self.InputArray, 1),
                                              (1, len(self.InputArray) + 1))
         sig = self.activation_function_derivative(NodesValueArraytemp)
-        sig_with_past = numpy.array(sig, past)
+        sig_with_past = numpy.multiply(sig, past)
 
         current = sig_with_past.dot(NodesValueArraytemp2)
         current = numpy.multiply(current, ratio)

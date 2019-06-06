@@ -10,7 +10,9 @@ def color_formula(x):
 
 
 class LinearNet:
-    def __init__(self, in_dem, out_dem, middle_dem, weight_range=[2.0, -2.0], activation=sigmoid,
+    def __init__(self, in_dem, out_dem, middle_dem, weight_range=[2.0, -2.0],
+                 enabled_weights = None,
+                 activation=sigmoid,
                  activation_der=sigmoid_der,
                  color_formula_param=color_formula, weights=None):
 
@@ -29,8 +31,21 @@ class LinearNet:
         else:
             dif = abs(weight_range[0] - weight_range[1])
             self.weights = randomize(numpy.zeros((self.in_dem + self.middle_dem, self.middle_dem + self.out_dem)))
-
             self.weights = numpy.add(weight_range[1], numpy.multiply(dif, self.weights))
+
+        if enabled_weights:
+            self.enabled_weights = enabled_weights
+        else:
+            def helper1(in_node):
+                return list(map(helper2, [in_node] * (self.middle_dem + self.out_dem),
+                                range(self.in_dem, self.in_dem + self.middle_dem + self.out_dem)))
+
+            def helper2(in_node, out_node):
+                return in_node < out_node
+
+            self.enabled_weights = numpy.array(list(map(helper1, range(self.in_dem + self.middle_dem))))
+            # print(self.enabled_weights)
+
         self.activation_function = activation
         self.activation_derivative = activation_der
 
@@ -42,37 +57,56 @@ class LinearNet:
         self.input_nodes = numpy.array(array, ndmin=2)
 
     def get_out(self):
+        # print("LINEAR INPUT:" + str(self.input_nodes))
+        self.weights = numpy.multiply(self.weights, self.enabled_weights)
         numpy.zeros((1, self.middle_dem + self.out_dem))
         self.node_sum = numpy.dot(self.input_nodes, self.weights[:self.in_dem])
+        # print("LINEAR SUM 1:" + str(self.node_sum))
         for i in range(self.middle_dem):
-            self.node_values[0][i] = sigmoid(self.node_sum[0][i])
-            self.node_sum = numpy.add(self.node_sum, numpy.multiply(self.node_values[0][i], self.weights[i:i + 1]))
+            self.node_values[0][i] = self.activation_function(self.node_sum[0][i])
+            # print("LINEAR IN:" + str(self.node_values[0][i]))
+            self.node_sum = numpy.add(self.node_sum, numpy.multiply(self.node_values[0][i],
+                                                                    self.weights[self.in_dem + i:self.in_dem + i + 1]))
+            # print("LINEAR SUM "+str(i+2)+":" + str(self.node_sum))
         self.node_values = self.activation_function(self.node_sum)
+
+        # print("LINEAR OUT:" + str(self.node_values[0][self.middle_dem:]))
         return self.node_values[0][self.middle_dem:]
 
     def learn(self, ratio, target):
-
+        self.weights = numpy.multiply(self.weights, self.enabled_weights)
         target = numpy.reshape(target, (1, len(target)))
+        # print("LINEAR TARGET" + str(target))
+        # print("LINEAR ACT:" + str(self.node_values[:, self.middle_dem:]))
 
         difference = numpy.multiply(2.0, numpy.subtract(target, self.node_values[:, self.middle_dem:]))
-
-        past = numpy.multiply(sigmoid_der(self.node_values[:, self.middle_dem:]), difference)
+        # print("LINEAR DIFF:" + str(difference))
+        past = numpy.multiply(self.activation_derivative(self.node_values[:, self.middle_dem:]), difference)
 
         self.node_back = numpy.dot(past, numpy.transpose(self.weights[:, self.middle_dem:]))
 
-        weight_shift = numpy.multiply(ratio, numpy.dot(numpy.transpose(numpy.concatenate((self.input_nodes, self.node_values[:, :self.middle_dem]), axis=1)), past))
+        weight_shift = numpy.multiply(ratio, numpy.dot(
+            numpy.transpose(numpy.concatenate((self.input_nodes, self.node_values[:, :self.middle_dem]), axis=1)),
+            past))
 
         self.weights[:, self.middle_dem:] = numpy.add(weight_shift, self.weights[:, self.middle_dem:])
 
         for n in range(self.middle_dem - 1, -1, -1):
-            past = numpy.multiply(sigmoid_der(self.node_values[0][n]), self.node_back[0][self.in_dem + n])
+            past = numpy.multiply(self.activation_derivative(self.node_values[0][n]), self.node_back[0][self.in_dem + n])
 
             self.node_back = numpy.add(numpy.multiply(past, numpy.transpose(self.weights[:, n])), self.node_back)
 
             weight_shift = numpy.multiply(ratio, numpy.multiply(
                 numpy.transpose(numpy.concatenate((self.input_nodes, self.node_values[:, :self.middle_dem]), axis=1)),
                 past))
-            self.weights[:, n:n] = numpy.add(weight_shift, self.weights[:, n:n])
+            # print("+++++")
+            # print(weight_shift)
+
+            self.weights[:, n:n+1] = numpy.add(weight_shift, self.weights[:, n:n+1])
+
+            # print("+++++")
+        # print("Past:" + str(self.node_back))
+        self.weights = numpy.multiply(self.weights, self.enabled_weights)
 
         error = distance_formula(target, self.node_values[:, self.middle_dem:])
         return error
@@ -86,33 +120,32 @@ class LinearNet:
                                 int(y + scale_dot + (i + 1) * in_spacing)],
                                int(scale_dot))
 
-        center_x = x + width / 2  #x + width / 4
+        center_x = x + width / 2  # x + width / 4
         center_y = y + height - scale_dot
         radius_y = height - scale_dot * 2
-        radius_x = width/4 #width / 2
+        radius_x = width / 4  # width / 2
         angle = 0
         if self.middle_dem > 1:
-            angle = (math.pi) / (self.middle_dem - 1) #(math.pi / 2) +
-
+            angle = (math.pi) / (self.middle_dem - 1)  # (math.pi / 2) +
 
         for i in range(self.middle_dem):
             for j in range(self.in_dem):
-                if self.weights[j][i] != 0.0:
+                if self.enabled_weights[j][i]:
                     pygame.draw.line(screen,
                                      [255. - 255. * self.activation_function(self.weights[j][i]), 125
                                          , 255. * self.activation_function(self.weights[j][i])],
                                      [int(x + scale_dot), int(y + scale_dot + (j + 1) * in_spacing)],
-                                     [int(center_x - math.cos(angle * i) * radius_x),
-                                      int(center_y - math.sin(angle * i) * radius_y)])
-            for j in range(i):
-                if self.weights[j + self.in_dem][i] != 0.0:
+                                     [int(center_x - math.cos(angle * i) * radius_x- scale_dot/2),
+                                      int(center_y - math.sin(angle * i) * radius_y - scale_dot/2)])
+            for j in range(self.middle_dem):
+                if self.enabled_weights[j + self.in_dem][i]:
                     pygame.draw.line(screen,
                                      [255. - 255. * self.activation_function(self.weights[j + self.in_dem][i]), 125
                                          , 255. * self.activation_function(self.weights[j + self.in_dem][i])],
-                                     [int(center_x - math.cos(angle * j) * radius_x),
-                                      int(center_y - math.sin(angle * j) * radius_y)],
-                                     [int(center_x - math.cos(angle * i) * radius_x),
-                                      int(center_y - math.sin(angle * i) * radius_y)])
+                                     [int(center_x - math.cos(angle * j) * radius_x + scale_dot/2),
+                                      int(center_y - math.sin(angle * j) * radius_y + scale_dot/2)],
+                                     [int(center_x - math.cos(angle * i) * radius_x- scale_dot/2),
+                                      int(center_y - math.sin(angle * i) * radius_y - scale_dot/2)])
             pygame.draw.circle(screen,
                                self.color_formula(self.node_values[0][i]),
                                [int(center_x - math.cos(angle * i) * radius_x),
@@ -122,7 +155,7 @@ class LinearNet:
         out_spacing = (height - scale_dot * 2) // (self.out_dem + 1)
         for i in range(self.out_dem):
             for j in range(self.in_dem):
-                if self.weights[j][self.middle_dem + i] != 0.0:
+                if self.enabled_weights[j][self.middle_dem + i]:
                     pygame.draw.line(screen,
                                      [255. - 255. * self.activation_function(self.weights[j][self.middle_dem + i]), 125
                                          , 255. * self.activation_function(self.weights[j][self.middle_dem + i])],
@@ -130,12 +163,14 @@ class LinearNet:
                                      [int(x + width - scale_dot),
                                       int(y + scale_dot + (i + 1) * out_spacing)])
             for j in range(self.middle_dem):
-                if self.weights[j + self.in_dem][self.middle_dem + i] != 0.0:
+                if self.enabled_weights[j + self.in_dem][self.middle_dem + i]:
                     pygame.draw.line(screen,
-                                     [255. - 255. * self.activation_function(self.weights[j + self.in_dem][self.middle_dem + i]), 125
-                                         , 255. * self.activation_function(self.weights[j + self.in_dem][self.middle_dem + i])],
-                                     [int(center_x - math.cos(angle * j) * radius_x),
-                                      int(center_y - math.sin(angle * j) * radius_y)],
+                                     [255. - 255. * self.activation_function(
+                                         self.weights[j + self.in_dem][self.middle_dem + i]), 125
+                                         , 255. * self.activation_function(
+                                         self.weights[j + self.in_dem][self.middle_dem + i])],
+                                     [int(center_x - math.cos(angle * j) * radius_x + scale_dot/2),
+                                      int(center_y - math.sin(angle * j) * radius_y + scale_dot/2)],
                                      [int(x + width - scale_dot),
                                       int(y + scale_dot + (i + 1) * out_spacing)])
             pygame.draw.circle(screen,

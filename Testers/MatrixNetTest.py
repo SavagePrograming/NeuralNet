@@ -7,7 +7,7 @@ WIDTH = 1000
 HEIGHT = 800
 ERROR_SIZE = 500
 DIMEN = [STATE_SIZE, STATE_SIZE, 1]
-Ratio = 1.0
+Ratio = .5
 
 
 def numtobits(num, bits):
@@ -52,7 +52,7 @@ def relu_color_formula(x):
     return (int(x * 255.) if x * 255.0 <= 255.0 else 255.0) if x > 0.0 else 0.0
 
 
-Net = MatrixNet.MatrixNet(DIMEN, [-1.0, 1.0])  # , relu_Array, relu_der_Array, relu_color_formula)
+Net = MatrixNet.MatrixNet(DIMEN, [1.0, 1.0])  # , relu_Array, relu_der_Array, relu_color_formula)
 
 # while numpy.linalg.norm(Net.getOut()
 
