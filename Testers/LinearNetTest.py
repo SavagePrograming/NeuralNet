@@ -1,11 +1,12 @@
 import numpy, pygame, random
 from Nets import LinearNet
 
-STATE_SIZE = 2
-NUMBER_OF_STATES = 4
+STATE_SIZE = 5
+NUMBER_OF_STATES = 100
 WIDTH = 1000
 HEIGHT = 800
 ERROR_SIZE = 500
+DOT_SIZE = 3
 DIMEN = [STATE_SIZE, STATE_SIZE, 1]
 Ratio = 5.0
 
@@ -14,12 +15,8 @@ def imitater(ar):
     return [1.0] if (ar[0] == 1.0) != (ar[1] == 1.0) else [0.0]
 
 
-enabled_weights = [[True, True, False],
-                   [True, True, False],
-                   [True, True, True],
-                   [False, False, True],
-                   [False, False, True]]
-
+enabled_weights = ([[True] * sum(DIMEN[1:-1]) + [False]] * DIMEN[0]) + [[True] * (sum(DIMEN[1:-1]) + 1)] + ([[False] * sum(DIMEN[1:-1]) + [True]] *sum(DIMEN[1:-1]))
+print(numpy.array(enabled_weights))
 # [[True, True, True],
 #                    [True, True, True],
 #                    [True, True, True],
@@ -35,8 +32,8 @@ enabled_weights = [[True, True, False],
 #    [False, False, False, False, True, True],
 #    [False, False, False, False, False, True]]
 
-Net = LinearNet.LinearNet(in_dem=STATE_SIZE, out_dem=1, middle_dem=2,
-                          weight_range=[1.0, 1.0],enabled_weights=enabled_weights)
+Net = LinearNet.LinearNet(in_dem=DIMEN[0], out_dem=DIMEN[-1], middle_dem=sum(DIMEN[1:-1]),
+                          weight_range=[1.0, -1.0], enabled_weights=enabled_weights)
 
 # while numpy.linalg.norm(Net.getOut()
 
@@ -53,10 +50,10 @@ for i in range(0, NUMBER_OF_STATES):
         State.append(random.choice([1, 0]))
     States.append(State)
     # States.append([, random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])])
-States = [[0.0, 1.0],
-          [1.0, 1.0],
-          [1.0, 0.0],
-          [0.0, 0.0]]
+# States = [[0.0, 1.0],
+#           [1.0, 1.0],
+#           [1.0, 0.0],
+#           [0.0, 0.0]]
 StatesIndex = 0
 Input = States[StatesIndex]
 Net.set_in(Input)
@@ -74,7 +71,7 @@ while KEEP:
         error_array.pop(0)
     print(error)
     Screen.fill([150, 150, 150])
-    Net.draw(Screen, 0, 0, WIDTH, HEIGHT - 200, 10)
+    Net.draw(Screen, 0, 0, WIDTH, HEIGHT - 200, DOT_SIZE)
 
     pygame.draw.line(Screen, [0, 0, 0], [0, HEIGHT - 200], [WIDTH, HEIGHT - 200])
     pygame.draw.line(Screen, [255, 255, 255], [0, HEIGHT - 100], [WIDTH, HEIGHT - 100])
