@@ -119,14 +119,18 @@ class LinearNet:
         if self.middle_dem > 1:
             angle = (math.pi) / (self.middle_dem - 1)
 
-        color_range = [self.color_formula(in_node) for in_node in self.input_nodes[0]]
+        screen_range = [screen] * self.in_dem
+        color_range = list(map(self.color_formula, self.input_nodes[0]))
 
         in_range_loc = numpy.zeros((self.in_dem, 2)).astype(int)
         in_range_loc[:, 0:1] = (numpy.add(x + scale_dot, in_range_loc[:, 0:1]))
         in_range_loc[:, 1:2] = (numpy.add(y + scale_dot, numpy.multiply(
             numpy.add(numpy.reshape(range(self.in_dem), (self.in_dem, 1)), 1), in_spacing)))
 
-        [pygame.draw.circle(screen, color, pos, scale_dot) for color, pos in zip(color_range, in_range_loc)]
+        radius_range = [scale_dot] * self.in_dem
+
+        any(map(pygame.draw.circle, screen_range, color_range, in_range_loc, radius_range))
+
         # (math.pi / 2) +
 
         # for i in range(self.middle_dem):
@@ -139,10 +143,11 @@ class LinearNet:
                                  [int(x + scale_dot), int(y + scale_dot + (j + 1) * in_spacing)],
                                  [int(center_x - math.cos(angle * i) * radius_x - scale_dot / 2),
                                   int(center_y - math.sin(angle * i) * radius_y - scale_dot / 2)])
+
         def helper_draw_1(i):
             list(map(helper_draw_2, [i] * self.in_dem, range(self.in_dem)))
 
-        def helper_draw_4(i,j):
+        def helper_draw_4(i, j):
             if self.enabled_weights[j + self.in_dem][i]:
                 pygame.draw.line(screen,
                                  [255. - 255. * self.activation_function(self.weights[j + self.in_dem][i]), 125
@@ -151,42 +156,51 @@ class LinearNet:
                                   int(center_y - math.sin(angle * j) * radius_y + scale_dot / 2)],
                                  [int(center_x - math.cos(angle * i) * radius_x - scale_dot / 2),
                                   int(center_y - math.sin(angle * i) * radius_y - scale_dot / 2)])
+
         def helper_draw_3(i):
-            for j in range(self.middle_dem):
-                helper_draw_4(i, j)
+            any(map(helper_draw_4, [i] * self.middle_dem, range(self.middle_dem)))
             pygame.draw.circle(screen,
                                self.color_formula(self.node_values[0][i]),
                                [int(center_x - math.cos(angle * i) * radius_x),
                                 int(center_y - math.sin(angle * i) * radius_y)],
                                int(scale_dot))
+
         list(map(helper_draw_1, range(self.middle_dem)))
         list(map(helper_draw_3, range(self.middle_dem)))
+
         out_spacing = (height - scale_dot * 2) / (self.out_dem + 1)
-        for i in range(self.out_dem):
-            for j in range(self.in_dem):
-                if self.enabled_weights[j][self.middle_dem + i]:
-                    pygame.draw.line(screen,
-                                     [255. - 255. * self.activation_function(self.weights[j][self.middle_dem + i]), 125
-                                         , 255. * self.activation_function(self.weights[j][self.middle_dem + i])],
-                                     [int(x + scale_dot), int(y + scale_dot + (j + 1) * in_spacing)],
-                                     [int(x + width - scale_dot),
-                                      int(y + scale_dot + (i + 1) * out_spacing)])
-            for j in range(self.middle_dem):
-                if self.enabled_weights[j + self.in_dem][self.middle_dem + i]:
-                    pygame.draw.line(screen,
-                                     [255. - 255. * self.activation_function(
-                                         self.weights[j + self.in_dem][self.middle_dem + i]), 125
-                                         , 255. * self.activation_function(
-                                         self.weights[j + self.in_dem][self.middle_dem + i])],
-                                     [int(center_x - math.cos(angle * j) * radius_x + scale_dot / 2),
-                                      int(center_y - math.sin(angle * j) * radius_y + scale_dot / 2)],
-                                     [int(x + width - scale_dot),
-                                      int(y + scale_dot + (i + 1) * out_spacing)])
+        def helper_draw_6(i,j):
+            if self.enabled_weights[j][self.middle_dem + i]:
+                pygame.draw.line(screen,
+                                 [255. - 255. * self.activation_function(self.weights[j][self.middle_dem + i]), 125
+                                     , 255. * self.activation_function(self.weights[j][self.middle_dem + i])],
+                                 [int(x + scale_dot), int(y + scale_dot + (j + 1) * in_spacing)],
+                                 [int(x + width - scale_dot),
+                                  int(y + scale_dot + (i + 1) * out_spacing)])
+        def helper_draw_7(i,j):
+            if self.enabled_weights[j + self.in_dem][self.middle_dem + i]:
+                pygame.draw.line(screen,
+                                 [255. - 255. * self.activation_function(
+                                     self.weights[j + self.in_dem][self.middle_dem + i]), 125
+                                     , 255. * self.activation_function(
+                                     self.weights[j + self.in_dem][self.middle_dem + i])],
+                                 [int(center_x - math.cos(angle * j) * radius_x + scale_dot / 2),
+                                  int(center_y - math.sin(angle * j) * radius_y + scale_dot / 2)],
+                                 [int(x + width - scale_dot),
+                                  int(y + scale_dot + (i + 1) * out_spacing)])
+
+        def helper_draw_5(i):
+            any(map(helper_draw_6, [i] * self.in_dem, range(self.in_dem)))
+            any(map(helper_draw_6, [i] * self.middle_dem, range(self.middle_dem)))
+
             pygame.draw.circle(screen,
                                self.color_formula(self.node_values[0][self.middle_dem + i]),
                                [int(x + width - scale_dot),
                                 int(y + scale_dot + (i + 1) * out_spacing)],
                                int(scale_dot))
+
+        any(map(helper_draw_5, range(self.out_dem)))
+
 
     def __eq__(self, other):
         return self.Score == other.Score
