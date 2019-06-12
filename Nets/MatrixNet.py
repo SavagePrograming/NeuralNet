@@ -96,9 +96,12 @@ class MatrixNet(Net):
         self.scale_dot = scale_dot
         self.scale_y = (self.height - self.scale_dot * 2) // max(self.dimensions)
         self.scale_x = (self.width - self.scale_dot * 2) // (len(self.dimensions) - 1)
+        self.in_screen = [self.screen] * len(self.input_array)
 
     def update_colors(self):
+        self.in_colors = list(map(self.color_formula, self.input_array))
         pass
+
 
     def draw(self):
         for y_ in range(0, len(self.input_array)):
@@ -117,5 +120,5 @@ class MatrixNet(Net):
                                          , 255. * self.activation_function(self.weight_array[x_][y_][y2])],
                                      [self.x + self.scale_dot + (x_ + 1) * self.scale_x,
                                       self.y + self.scale_dot + y_ * self.scale_y],
-                                     [self.x + self.scale_dot + (x_) * self.scale_x,
+                                     [self.x + self.scale_dot + (x_) * self.scale_x,kl
                                       self.y + self.scale_dot + y2 * self.scale_y])
