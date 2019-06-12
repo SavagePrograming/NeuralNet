@@ -59,7 +59,6 @@ class MatrixNet:
                     self.InputArray[i][0] = array[i]
 
     def get_out(self):
-        # print("MATRIX INPUT:" + str(self.InputArray))
         self.NodesValueArray[0] = self.ActivationFunction(
             self.WeightArray[0].dot(numpy.reshape(numpy.append(self.InputArray, 1.0), ((len(self.InputArray) + 1), 1))))
         # print("MATRIX IN:" + str(self.NodesValueArray[0]))

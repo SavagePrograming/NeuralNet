@@ -1,6 +1,4 @@
-from functools import total_ordering
-
-import numpy, random, math, pygame
+import numpy, math, pygame
 
 from formulas import distance_formula, sigmoid, sigmoid_der, randomize
 
@@ -9,12 +7,38 @@ def color_formula(x):
     return [0, int(x * 255.), 0]
 
 
+def color_formula_line(x):
+    return [255. - 255. * sigmoid(x), 125, 255. * sigmoid(x)]
+
+
+def color_formula_line_helper(x):
+    return list(map(color_formula_line, x))
+
+
+def draw_circle(screen_range, color_range, in_range_loc, radius_range):
+    pygame.draw.circle(screen_range, color_range, in_range_loc, radius_range)
+
+
+def draw_line_enable(screen, color, start_pos, end_pos, width, enable):
+    if enable:
+        pygame.draw.line(screen, color, start_pos, end_pos, width)
+
+
+def draw_line_helper(screen, color, start_pos, end_pos, width, enable):
+    list(map(draw_line_enable, screen, color, start_pos, end_pos, width, enable))
+
+
 class LinearNet:
-    def __init__(self, in_dem, out_dem, middle_dem, weight_range=[2.0, -2.0],
+    def __init__(self,
+                 in_dem,
+                 out_dem,
+                 middle_dem,
+                 weight_range=[2.0, -2.0],
                  enabled_weights=None,
                  activation=sigmoid,
                  activation_der=sigmoid_der,
-                 color_formula_param=color_formula, weights=None):
+                 color_formula_param=color_formula,
+                 weights=None):
 
         self.in_dem = in_dem + 1
         self.out_dem = out_dem
@@ -45,6 +69,80 @@ class LinearNet:
         self.activation_derivative = activation_der
 
         self.color_formula = color_formula_param
+    def update(self, screen, x, y, width, height, scale_dot=5):
+
+        in_spacing = (height - scale_dot * 2) / (self.in_dem + 1)
+        out_spacing = (height - scale_dot * 2) / (self.out_dem + 1)
+
+        center_x = x + width / 2  # x + width / 4
+        center_y = y + height - scale_dot
+        radius_y = height - scale_dot * 2
+        radius_x = width / 4  # width / 2
+        angle = 0
+        if self.middle_dem > 1:
+            angle = math.pi / (self.middle_dem - 1)
+
+        self.in_screen_range = [screen] * self.in_dem
+        self.middle_screen_range = [screen] * self.middle_dem
+        self.out_screen_range = [screen] * self.out_dem
+        self.line_screen_range = [[screen] * (self.out_dem + self.middle_dem)] * (self.middle_dem + self.in_dem)
+
+        self.in_range_loc = numpy.zeros((self.in_dem, 2)).astype(int)
+        self.in_range_loc[:, 0:1] = (numpy.add(x + scale_dot, self.in_range_loc[:, 0:1]))
+        self.in_range_loc[:, 1:2] = (numpy.add(y + scale_dot, numpy.multiply(
+            numpy.add(numpy.reshape(range(self.in_dem), (self.in_dem, 1)), 1), in_spacing)))
+
+        self.middle_range_loc = numpy.concatenate([
+            numpy.reshape(numpy.subtract(center_x, numpy.multiply(radius_x, numpy.cos(
+                numpy.multiply(angle, range(self.middle_dem))))),
+                          (self.middle_dem, 1)),
+            numpy.reshape(numpy.subtract(center_y, numpy.multiply(radius_y, numpy.sin(
+                numpy.multiply(angle, range(self.middle_dem))))),
+                          (self.middle_dem, 1)),
+        ], 1).astype(int)
+
+        self.out_range_loc = numpy.zeros((self.out_dem, 2)).astype(int)
+        self.out_range_loc[:, 0:1] = (numpy.add(x + width - scale_dot, self.out_range_loc[:, 0:1]))
+        self.out_range_loc[:, 1:2] = (numpy.add(y + scale_dot, numpy.multiply(
+            numpy.add(numpy.reshape(range(self.out_dem), (self.out_dem, 1)), 1), out_spacing)))
+
+        self.in_radius_range = [scale_dot] * self.in_dem
+        self.middle_radius_range = [scale_dot] * self.middle_dem
+        self.out_radius_range = [scale_dot] * self.out_dem
+        self.line_radius_range = [[1] * (self.out_dem + self.middle_dem)] * (self.middle_dem + self.in_dem)
+
+        # self.line_start_loc = [numpy.concatenate([self.in_range_loc, self.middle_range_loc], 0)] * (
+        #         self.middle_dem + self.out_dem)
+        # self.line_end_loc = [[end] * (self.in_dem + self.middle_dem) for end in
+        #                      numpy.concatenate([self.middle_range_loc, self.out_range_loc], 0)]
+
+        self.line_start_loc = [[start] * (self.out_dem + self.middle_dem) for start in
+                             numpy.concatenate([self.in_range_loc, self.middle_range_loc], 0)]
+        self.line_end_loc = [numpy.concatenate([self.middle_range_loc, self.out_range_loc], 0)] * (
+                self.middle_dem + self.in_dem)
+
+        self.update_colors()
+
+    def update_colors(self):
+        self.in_color_range = list(map(self.color_formula, self.input_nodes[0]))
+        self.middle_color_range = list(map(self.color_formula, self.node_values[0][:self.middle_dem]))
+        self.out_color_range = list(map(self.color_formula, self.node_values[0][self.middle_dem:]))
+        self.line_color_range = list(map(color_formula_line_helper, self.weights))
+
+    def draw(self):
+        self.update_colors()
+
+        list(map(draw_line_helper, self.line_screen_range, self.line_color_range,
+                self.line_start_loc, self.line_end_loc, self.line_radius_range, self.enabled_weights))
+
+        any(map(draw_circle, self.in_screen_range, self.in_color_range, self.in_range_loc, self.in_radius_range))
+
+        any(map(draw_circle, self.middle_screen_range, self.middle_color_range, self.middle_range_loc,
+                self.middle_radius_range))
+
+        any(map(draw_circle, self.out_screen_range, self.out_color_range, self.out_range_loc,
+                self.out_radius_range))
+
 
     def set_in(self, array):
         array = array + [1.0]
@@ -52,30 +150,27 @@ class LinearNet:
         self.input_nodes = numpy.array(array, ndmin=2)
 
     def get_out(self):
-        # print("LINEAR INPUT:" + str(self.input_nodes))
+
         self.weights = numpy.multiply(self.weights, self.enabled_weights)
         numpy.zeros((1, self.middle_dem + self.out_dem))
         self.node_sum = numpy.dot(self.input_nodes, self.weights[:self.in_dem])
-        # print("LINEAR SUM 1:" + str(self.node_sum))
+
         for i in range(self.middle_dem):
             self.node_values[0][i] = self.activation_function(self.node_sum[0][i])
-            # print("LINEAR IN:" + str(self.node_values[0][i]))
+
             self.node_sum = numpy.add(self.node_sum, numpy.multiply(self.node_values[0][i],
                                                                     self.weights[self.in_dem + i:self.in_dem + i + 1]))
-            # print("LINEAR SUM "+str(i+2)+":" + str(self.node_sum))
+
         self.node_values = self.activation_function(self.node_sum)
 
-        # print("LINEAR OUT:" + str(self.node_values[0][self.middle_dem:]))
         return self.node_values[0][self.middle_dem:]
 
     def learn(self, ratio, target):
         self.weights = numpy.multiply(self.weights, self.enabled_weights)
         target = numpy.reshape(target, (1, len(target)))
-        # print("LINEAR TARGET" + str(target))
-        # print("LINEAR ACT:" + str(self.node_values[:, self.middle_dem:]))
 
         difference = numpy.multiply(2.0, numpy.subtract(target, self.node_values[:, self.middle_dem:]))
-        # print("LINEAR DIFF:" + str(difference))
+
         past = numpy.multiply(self.activation_derivative(self.node_values[:, self.middle_dem:]), difference)
 
         self.node_back = numpy.dot(past, numpy.transpose(self.weights[:, self.middle_dem:]))
@@ -95,112 +190,13 @@ class LinearNet:
             weight_shift = numpy.multiply(ratio, numpy.multiply(
                 numpy.transpose(numpy.concatenate((self.input_nodes, self.node_values[:, :self.middle_dem]), axis=1)),
                 past))
-            # print("+++++")
-            # print(weight_shift)
 
             self.weights[:, n:n + 1] = numpy.add(weight_shift, self.weights[:, n:n + 1])
 
-            # print("+++++")
-        # print("Past:" + str(self.node_back))
         self.weights = numpy.multiply(self.weights, self.enabled_weights)
 
         error = distance_formula(target, self.node_values[:, self.middle_dem:])
         return error
-
-    def draw(self, screen, x, y, width, height, scale_dot=5):
-
-        in_spacing = (height - scale_dot * 2) / (self.in_dem + 1)
-
-        center_x = x + width / 2  # x + width / 4
-        center_y = y + height - scale_dot
-        radius_y = height - scale_dot * 2
-        radius_x = width / 4  # width / 2
-        angle = 0
-        if self.middle_dem > 1:
-            angle = (math.pi) / (self.middle_dem - 1)
-
-        screen_range = [screen] * self.in_dem
-        color_range = list(map(self.color_formula, self.input_nodes[0]))
-
-        in_range_loc = numpy.zeros((self.in_dem, 2)).astype(int)
-        in_range_loc[:, 0:1] = (numpy.add(x + scale_dot, in_range_loc[:, 0:1]))
-        in_range_loc[:, 1:2] = (numpy.add(y + scale_dot, numpy.multiply(
-            numpy.add(numpy.reshape(range(self.in_dem), (self.in_dem, 1)), 1), in_spacing)))
-
-        radius_range = [scale_dot] * self.in_dem
-
-        any(map(pygame.draw.circle, screen_range, color_range, in_range_loc, radius_range))
-
-        # (math.pi / 2) +
-
-        # for i in range(self.middle_dem):
-        #     helper3(i)
-        def helper_draw_2(i, j):
-            if self.enabled_weights[j][i]:
-                pygame.draw.line(screen,
-                                 [255. - 255. * self.activation_function(self.weights[j][i]), 125
-                                     , 255. * self.activation_function(self.weights[j][i])],
-                                 [int(x + scale_dot), int(y + scale_dot + (j + 1) * in_spacing)],
-                                 [int(center_x - math.cos(angle * i) * radius_x - scale_dot / 2),
-                                  int(center_y - math.sin(angle * i) * radius_y - scale_dot / 2)])
-
-        def helper_draw_1(i):
-            list(map(helper_draw_2, [i] * self.in_dem, range(self.in_dem)))
-
-        def helper_draw_4(i, j):
-            if self.enabled_weights[j + self.in_dem][i]:
-                pygame.draw.line(screen,
-                                 [255. - 255. * self.activation_function(self.weights[j + self.in_dem][i]), 125
-                                     , 255. * self.activation_function(self.weights[j + self.in_dem][i])],
-                                 [int(center_x - math.cos(angle * j) * radius_x + scale_dot / 2),
-                                  int(center_y - math.sin(angle * j) * radius_y + scale_dot / 2)],
-                                 [int(center_x - math.cos(angle * i) * radius_x - scale_dot / 2),
-                                  int(center_y - math.sin(angle * i) * radius_y - scale_dot / 2)])
-
-        def helper_draw_3(i):
-            any(map(helper_draw_4, [i] * self.middle_dem, range(self.middle_dem)))
-            pygame.draw.circle(screen,
-                               self.color_formula(self.node_values[0][i]),
-                               [int(center_x - math.cos(angle * i) * radius_x),
-                                int(center_y - math.sin(angle * i) * radius_y)],
-                               int(scale_dot))
-
-        list(map(helper_draw_1, range(self.middle_dem)))
-        list(map(helper_draw_3, range(self.middle_dem)))
-
-        out_spacing = (height - scale_dot * 2) / (self.out_dem + 1)
-        def helper_draw_6(i,j):
-            if self.enabled_weights[j][self.middle_dem + i]:
-                pygame.draw.line(screen,
-                                 [255. - 255. * self.activation_function(self.weights[j][self.middle_dem + i]), 125
-                                     , 255. * self.activation_function(self.weights[j][self.middle_dem + i])],
-                                 [int(x + scale_dot), int(y + scale_dot + (j + 1) * in_spacing)],
-                                 [int(x + width - scale_dot),
-                                  int(y + scale_dot + (i + 1) * out_spacing)])
-        def helper_draw_7(i,j):
-            if self.enabled_weights[j + self.in_dem][self.middle_dem + i]:
-                pygame.draw.line(screen,
-                                 [255. - 255. * self.activation_function(
-                                     self.weights[j + self.in_dem][self.middle_dem + i]), 125
-                                     , 255. * self.activation_function(
-                                     self.weights[j + self.in_dem][self.middle_dem + i])],
-                                 [int(center_x - math.cos(angle * j) * radius_x + scale_dot / 2),
-                                  int(center_y - math.sin(angle * j) * radius_y + scale_dot / 2)],
-                                 [int(x + width - scale_dot),
-                                  int(y + scale_dot + (i + 1) * out_spacing)])
-
-        def helper_draw_5(i):
-            any(map(helper_draw_6, [i] * self.in_dem, range(self.in_dem)))
-            any(map(helper_draw_6, [i] * self.middle_dem, range(self.middle_dem)))
-
-            pygame.draw.circle(screen,
-                               self.color_formula(self.node_values[0][self.middle_dem + i]),
-                               [int(x + width - scale_dot),
-                                int(y + scale_dot + (i + 1) * out_spacing)],
-                               int(scale_dot))
-
-        any(map(helper_draw_5, range(self.out_dem)))
-
 
     def __eq__(self, other):
         return self.Score == other.Score

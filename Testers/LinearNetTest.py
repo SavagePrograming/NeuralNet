@@ -1,13 +1,13 @@
 import numpy, pygame, random
 from Nets import LinearNet
 
-STATE_SIZE = 5
+STATE_SIZE = 2
 NUMBER_OF_STATES = 100
 WIDTH = 1000
 HEIGHT = 800
 ERROR_SIZE = 500
-DOT_SIZE = 3
-DIMEN = [STATE_SIZE, STATE_SIZE, 1]
+DOT_SIZE = 10
+DIMEN = [STATE_SIZE, 0, 1]
 Ratio = 5.0
 
 
@@ -32,9 +32,6 @@ print(numpy.array(enabled_weights))
 #    [False, False, False, False, True, True],
 #    [False, False, False, False, False, True]]
 
-Net = LinearNet.LinearNet(in_dem=DIMEN[0], out_dem=DIMEN[-1], middle_dem=sum(DIMEN[1:-1]),
-                          weight_range=[1.0, -1.0], enabled_weights=enabled_weights)
-
 # while numpy.linalg.norm(Net.getOut()
 
 pygame.init()
@@ -42,6 +39,17 @@ Screen = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.key.set_repeat(100, 50)
 Screen.fill([150, 150, 150])
 
+Net = LinearNet.LinearNet(in_dem=DIMEN[0],
+                          out_dem=DIMEN[-1],
+                          middle_dem=sum(DIMEN[1:-1]),
+                          weight_range=[1.0, -1.0],
+                          enabled_weights=enabled_weights)
+Net.update(screen=Screen,
+           x=0,
+           y=0,
+           width=WIDTH,
+           height=HEIGHT - 200,
+           scale_dot=DOT_SIZE)
 KEEP = True
 States = []
 for i in range(0, NUMBER_OF_STATES):
@@ -71,7 +79,7 @@ while KEEP:
         error_array.pop(0)
     print(error)
     Screen.fill([150, 150, 150])
-    Net.draw(Screen, 0, 0, WIDTH, HEIGHT - 200, DOT_SIZE)
+    Net.draw()
 
     pygame.draw.line(Screen, [0, 0, 0], [0, HEIGHT - 200], [WIDTH, HEIGHT - 200])
     pygame.draw.line(Screen, [255, 255, 255], [0, HEIGHT - 100], [WIDTH, HEIGHT - 100])
