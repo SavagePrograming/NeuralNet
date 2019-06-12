@@ -8,7 +8,7 @@ from formulas import distance_formula, sigmoid, sigmoid_der, color_formula
 class MatrixNet:
     def __init__(self,
                  dimensions: List[int],
-                 weight_range: Tuple[int, int],
+                 weight_range: Tuple[float, float],
                  activation: Callable = sigmoid,
                  activation_der: Callable = sigmoid_der,
                  color_formula_param: Callable = color_formula):
