@@ -87,21 +87,35 @@ class MatrixNet(Net):
 
         return error
 
-    def draw(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, scale_dot: int = 5):
-        scale_y = (height - scale_dot * 2) // max(self.dimensions)
-        scale_x = (width - scale_dot * 2) // (len(self.dimensions) - 1)
+    def update(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, scale_dot: int = 5):
+        self.screen = screen
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.scale_dot = scale_dot
+        self.scale_y = (self.height - self.scale_dot * 2) // max(self.dimensions)
+        self.scale_x = (self.width - self.scale_dot * 2) // (len(self.dimensions) - 1)
+
+    def update_colors(self):
+        pass
+
+    def draw(self):
         for y_ in range(0, len(self.input_array)):
-            pygame.draw.circle(screen, self.color_formula(self.input_array[y_]),
-                               [int(x + scale_dot), int(y + scale_dot + y_ * scale_y)],
-                               int(scale_dot))
+            pygame.draw.circle(self.screen, self.color_formula(self.input_array[y_]),
+                               [int(self.x + self.scale_dot), int(self.y + self.scale_dot + y_ * self.scale_y)],
+                               int(self.scale_dot))
         for x_ in range(0, len(self.nodes_value_array)):
             for y_ in range(0, len(self.nodes_value_array[x_])):
-                pygame.draw.circle(screen, self.color_formula(self.nodes_value_array[x_][y_]),
-                                   [int(x + scale_dot + (x_ + 1) * scale_x), int(y + scale_dot + y_ * scale_y)],
-                                   int(scale_dot))
+                pygame.draw.circle(self.screen, self.color_formula(self.nodes_value_array[x_][y_]),
+                                   [int(self.x + self.scale_dot + (x_ + 1) * self.scale_x),
+                                    int(self.y + self.scale_dot + y_ * self.scale_y)],
+                                   int(self.scale_dot))
                 for y2 in range(0, len(self.weight_array[x_][y_])):
-                    pygame.draw.line(screen,
+                    pygame.draw.line(self.screen,
                                      [255. - 255. * self.activation_function(self.weight_array[x_][y_][y2]), 125
                                          , 255. * self.activation_function(self.weight_array[x_][y_][y2])],
-                                     [x + scale_dot + (x_ + 1) * scale_x, y + scale_dot + y_ * scale_y],
-                                     [x + scale_dot + (x_) * scale_x, y + scale_dot + y2 * scale_y])
+                                     [self.x + self.scale_dot + (x_ + 1) * self.scale_x,
+                                      self.y + self.scale_dot + y_ * self.scale_y],
+                                     [self.x + self.scale_dot + (x_) * self.scale_x,
+                                      self.y + self.scale_dot + y2 * self.scale_y])
