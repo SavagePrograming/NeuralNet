@@ -26,18 +26,18 @@ class Simulation:
         self.count = 0
 
     @abstractmethod
-    def run(self, population: List[Net]) -> numpy.array:
+    def run(self, population: List[Type[Net]]) -> numpy.array:
         pass
 
     @abstractmethod
     def run_generations(self,
-                        population: List[Net],
+                        population: List[Type[Net]],
                         generation: int) -> numpy.array:
         pass
 
     @abstractmethod
     def run_generations_visual(self,
-                               population: List[Net],
+                               population: List[Type[Net]],
                                generation: int,
                                driver: Type[Driver],
                                screen: pygame.Surface,
