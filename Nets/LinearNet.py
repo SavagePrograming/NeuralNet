@@ -1,25 +1,24 @@
-from typing import List, Callable
+from typing import List, Callable, Tuple
 
 import numpy, math, pygame
 
+from Nets.Net import Net
 from formulas import distance_formula, sigmoid, sigmoid_der, randomize, color_formula, color_formula_line, \
     color_formula_line_helper, draw_circle, draw_line_helper
 
 
-class LinearNet:
+class LinearNet(Net):
     def __init__(self,
                  in_dem: int,
                  out_dem: int,
                  middle_dem: int,
-                 weight_range: List[float] = [2.0, -2.0],
+                 weight_range: Tuple[float, float] = [2.0, -2.0],
                  enabled_weights: numpy.array = None,
                  activation: Callable = sigmoid,
                  activation_der: Callable = sigmoid_der,
                  color_formula_param: Callable = color_formula,
                  weights: numpy.array = None):
-
-        self.in_dem: int = in_dem + 1
-        self.out_dem: int = out_dem
+        super(LinearNet, self).__init__(in_dem + 1, out_dem, activation, activation_der, color_formula_param)
         self.middle_dem: int = middle_dem
 
         self.score = 0
@@ -42,11 +41,6 @@ class LinearNet:
                 [in_node < out_node
                  for out_node in range(self.in_dem, self.in_dem + self.middle_dem + self.out_dem)]
                 for in_node in range(self.in_dem + self.middle_dem)])
-
-        self.activation_function: Callable = activation
-        self.activation_derivative: Callable = activation_der
-
-        self.color_formula: Callable = color_formula_param
 
     def update(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, scale_dot: int = 5):
 
@@ -175,30 +169,3 @@ class LinearNet:
 
         error = distance_formula(target, self.node_values[:, self.middle_dem:])
         return error
-
-    def __eq__(self, other):
-        return self.score == other.score
-
-    def __lt__(self, other):
-        return self.score < other.score
-
-    def __gt__(self, other):
-        return self.score > other.score
-
-    def __ge__(self, other):
-        return self.score >= other.score
-
-    def __le__(self, other):
-        return self.score <= other.score
-
-    def __add__(self, other):
-        if isinstance(other, LinearNet):
-            return self.score + other.score
-        else:
-            return self.score + other
-
-    def __radd__(self, other):
-        if isinstance(other, LinearNet):
-            return self.score + other.score
-        else:
-            return self.score + other

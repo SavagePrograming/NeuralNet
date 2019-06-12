@@ -5,6 +5,7 @@ import pygame
 from math import ceil
 from numpy import mean, median, math
 
+from Drivers.Driver import Driver
 from Nets.EvolvingNet import EvolvingNet
 from Simulations.EvolutionSimulation import EvolutionSimulation
 
@@ -18,7 +19,7 @@ def clean(a):
             i += 1
 
 
-class EvolutionSpeciationDriver:
+class EvolutionSpeciationDriver(Driver):
     def __init__(self,
                  population_size: int,
                  survivor_ratio: float,
@@ -29,68 +30,30 @@ class EvolutionSpeciationDriver:
                  balancing_focus: float,
                  mutability: float = 0.5,
                  evolving_class: ClassVar = EvolvingNet):
+        super(EvolutionSpeciationDriver, self).__init__(
+            population_size=population_size,
+            simulation=simulation,
+            generation_size=generation_size,
+            row_size=0,
+            row_count=0,
+            mutability=mutability,
+            evolving_class=evolving_class
+        )
         self.balance_top: float = .5
         self.balance_bottom: float = .25
         self.species_threshold: float = species_threshold
         self.balance_focus: float = balancing_focus
         self.SISR: float = species_independent_survivor_ratio
-        self.in_dem: int = simulation.InDem
-        self.out_dem: int = simulation.OutDem
-        self.population_size: int = population_size
-        self.mutability: float = mutability
-        self.survivor_ratio: float = survivor_ratio
-        self.simulation: EvolutionSimulation = simulation
-        self.evolving_class = evolving_class
-        self.generation_size: int = generation_size
-        self.median: float = 0.0
-        self.average: float = 0.0
-        self.maximum: float = 0.0
-        self.minimum: float = 0.0
-        self.species: List[List[evolving_class]] = []
 
-        self.population: List[evolving_class] = []
-        for i in range(self.population_size):
-            child = self.evolving_class(self.in_dem, self.out_dem, self.simulation.Layers, mutability=mutability)
-            self.population.append(child)
+        self.survivor_ratio: float = survivor_ratio
+        self.species: List[List[evolving_class]] = []
+        for child in self.population:
             self.add_to_specie(child)
 
-    def run(self):
-        self.simulation.restart()
-        fitness = self.simulation.run_generations(self.population, self.generation_size)
-        self.average = mean(fitness)
-        self.median = median(fitness)
-        self.maximum = max(fitness)
-        self.minimum = min(fitness)
-        self.repopulate(fitness)
-
-    def test(self):
-        fitness = self.simulation.run(self.population)
-        self.average = mean(fitness)
-        self.median = median(fitness)
-        self.maximum = max(fitness)
-        self.minimum = min(fitness)
-
     def draw(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, dot_size: int = 10):
-        row_count = int(math.sqrt(len(self.species)))
-        row_size = math.ceil(len(self.species) / row_count)
-        for i in range(row_count * row_size):
-            if len(self.species) > i:
-                self.species[i][0].draw(screen,
-                                        x + (i % row_size) * (width // row_size),
-                                        y + (i // row_size) * (height // row_count),
-                                        width // row_size,
-                                        height // row_count,
-                                        dot_size)
-
-    def run_visual(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, dot_size: int = 10):
-        self.simulation.restart()
-        fitness = self.simulation.run_generations_visual(self.population, self.generation_size, self, screen, x, y,
-                                                         width, height, dot_size)
-        self.average = mean(fitness)
-        self.median = median(fitness)
-        self.maximum = max(fitness)
-        self.minimum = min(fitness)
-        self.repopulate(fitness)
+        self.row_count = int(math.sqrt(len(self.species)))
+        self.row_size = math.ceil(len(self.species) / self.row_count)
+        super(EvolutionSpeciationDriver, self).draw(screen, x, y, width, height, dot_size)
 
     def repopulate(self, fitness: List[float]):
         survivors = int(self.population_size * self.survivor_ratio) - ceil(self.population_size * self.SISR)

@@ -2,22 +2,22 @@ from typing import Tuple, List, Callable
 
 import numpy, random, math, pygame
 
+from Nets.Net import Net
 from formulas import distance_formula, sigmoid, sigmoid_der, color_formula
 
 
-class MatrixNet:
+class MatrixNet(Net):
     def __init__(self,
                  dimensions: List[int],
                  weight_range: Tuple[float, float],
                  activation: Callable = sigmoid,
                  activation_der: Callable = sigmoid_der,
                  color_formula_param: Callable = color_formula):
+
+        super(MatrixNet, self).__init__(dimensions[0], dimensions[-1], activation, activation_der, color_formula_param)
         self.input_array: numpy.array = numpy.array([[0]] * dimensions[0])
         self.weight_array: List[numpy.array] = []
         self.nodes_value_array: List[List[List[int]]] = []
-        self.activation_function: Callable = activation
-        self.activation_function_derivative: Callable = activation_der
-        self.color_formula: callable() = color_formula_param
         self.dimensions: List[int] = dimensions
         self.score: float = 0
 
@@ -105,30 +105,3 @@ class MatrixNet:
                                          , 255. * self.activation_function(self.weight_array[x_][y_][y2])],
                                      [x + scale_dot + (x_ + 1) * scale_x, y + scale_dot + y_ * scale_y],
                                      [x + scale_dot + (x_) * scale_x, y + scale_dot + y2 * scale_y])
-
-    def __eq__(self, other):
-        return self.score == other.score
-
-    def __lt__(self, other):
-        return self.score < other.score
-
-    def __gt__(self, other):
-        return self.score > other.score
-
-    def __ge__(self, other):
-        return self.score >= other.score
-
-    def __le__(self, other):
-        return self.score <= other.score
-
-    def __add__(self, other):
-        if isinstance(other, MatrixNet):
-            return self.score + other.score
-        else:
-            return self.score + other
-
-    def __radd__(self, other):
-        if isinstance(other, MatrixNet):
-            return self.score + other.score
-        else:
-            return self.score + other
