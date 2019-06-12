@@ -3,13 +3,7 @@ import random
 import numpy
 
 from Nets.MatrixNet import MatrixNet
-from formulas import distance_formula, sigmoid, sigmoid_der
-
-
-
-def color_formula(x):
-    return [0, int(x * 255.), 0]
-
+from formulas import distance_formula, sigmoid, sigmoid_der, color_formula
 
 class StaticEvolvingNet(MatrixNet):
     def __init__(self, in_dem, out_dem, genetics_layers, genetics_weights=None, mutability=.5, activation=sigmoid,

@@ -30,10 +30,6 @@ def imitater(ar):
     return [1.0] if ar[0] != ar[1] else [0.0]
 
 
-def tanh_color_formula(x):
-    return int((1.0 + x) * 127.5)
-
-
 def relu(x):
     return 0.0 if x < 0 else x
 
@@ -52,9 +48,7 @@ def relu_color_formula(x):
     return (int(x * 255.) if x * 255.0 <= 255.0 else 255.0) if x > 0.0 else 0.0
 
 
-Net = MatrixNet.MatrixNet(DIMEN, [1.0, 1.0])  # , relu_Array, relu_der_Array, relu_color_formula)
-
-# while numpy.linalg.norm(Net.getOut()
+Net = MatrixNet.MatrixNet(DIMEN, [1.0, 1.0])
 
 pygame.init()
 Screen = pygame.display.set_mode([WIDTH, HEIGHT])
@@ -68,7 +62,6 @@ for i in range(0, NUMBER_OF_STATES):
     for i in range(0, STATE_SIZE):
         State.append(random.choice([1, 0]))
     States.append(State)
-    # States.append([, random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])])
 States = [[0.0, 1.0],
           [1.0, 1.0],
           [1.0, 0.0],
@@ -81,7 +74,7 @@ delay = 0
 error_array = []
 while KEEP:
     pygame.time.delay(delay)
-    # input("-----------------------")
+
     Net.get_out()
     error_array.append(int((HEIGHT - 100) - Net.learn(Ratio, imitater(Input)) * 50.0))
     if len(error_array) > ERROR_SIZE:

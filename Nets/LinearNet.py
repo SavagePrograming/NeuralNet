@@ -1,31 +1,7 @@
 import numpy, math, pygame
 
-from formulas import distance_formula, sigmoid, sigmoid_der, randomize
-
-
-def color_formula(x):
-    return [0, int(x * 255.), 0]
-
-
-def color_formula_line(x):
-    return [255. - 255. * sigmoid(x), 125, 255. * sigmoid(x)]
-
-
-def color_formula_line_helper(x):
-    return list(map(color_formula_line, x))
-
-
-def draw_circle(screen_range, color_range, in_range_loc, radius_range):
-    pygame.draw.circle(screen_range, color_range, in_range_loc, radius_range)
-
-
-def draw_line_enable(screen, color, start_pos, end_pos, width, enable):
-    if enable:
-        pygame.draw.line(screen, color, start_pos, end_pos, width)
-
-
-def draw_line_helper(screen, color, start_pos, end_pos, width, enable):
-    list(map(draw_line_enable, screen, color, start_pos, end_pos, width, enable))
+from formulas import distance_formula, sigmoid, sigmoid_der, randomize, color_formula, color_formula_line, \
+    color_formula_line_helper, draw_circle, draw_line_helper
 
 
 class LinearNet:
@@ -69,6 +45,7 @@ class LinearNet:
         self.activation_derivative = activation_der
 
         self.color_formula = color_formula_param
+
     def update(self, screen, x, y, width, height, scale_dot=5):
 
         in_spacing = (height - scale_dot * 2) / (self.in_dem + 1)
@@ -117,7 +94,7 @@ class LinearNet:
         #                      numpy.concatenate([self.middle_range_loc, self.out_range_loc], 0)]
 
         self.line_start_loc = [[start] * (self.out_dem + self.middle_dem) for start in
-                             numpy.concatenate([self.in_range_loc, self.middle_range_loc], 0)]
+                               numpy.concatenate([self.in_range_loc, self.middle_range_loc], 0)]
         self.line_end_loc = [numpy.concatenate([self.middle_range_loc, self.out_range_loc], 0)] * (
                 self.middle_dem + self.in_dem)
 
@@ -133,7 +110,7 @@ class LinearNet:
         self.update_colors()
 
         list(map(draw_line_helper, self.line_screen_range, self.line_color_range,
-                self.line_start_loc, self.line_end_loc, self.line_radius_range, self.enabled_weights))
+                 self.line_start_loc, self.line_end_loc, self.line_radius_range, self.enabled_weights))
 
         any(map(draw_circle, self.in_screen_range, self.in_color_range, self.in_range_loc, self.in_radius_range))
 
@@ -142,7 +119,6 @@ class LinearNet:
 
         any(map(draw_circle, self.out_screen_range, self.out_color_range, self.out_range_loc,
                 self.out_radius_range))
-
 
     def set_in(self, array):
         array = array + [1.0]

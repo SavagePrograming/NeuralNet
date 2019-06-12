@@ -4,30 +4,6 @@ from Nets.LinearNet import LinearNet
 from formulas import distance_formula, sigmoid, sigmoid_der, randomize
 
 
-def color_formula(x):
-    return [0, int(x * 255.), 0]
-
-
-def color_formula_line(x):
-    return [255. - 255. * sigmoid(x), 125, 255. * sigmoid(x)]
-
-
-def color_formula_line_helper(x):
-    return list(map(color_formula_line, x))
-
-
-def draw_circle(screen_range, color_range, in_range_loc, radius_range):
-    pygame.draw.circle(screen_range, color_range, in_range_loc, radius_range)
-
-
-def draw_line_enable(screen, color, start_pos, end_pos, width, enable):
-    if enable:
-        pygame.draw.line(screen, color, start_pos, end_pos, width)
-
-
-def draw_line_helper(screen, color, start_pos, end_pos, width, enable):
-    any(map(draw_line_enable, screen, color, start_pos, end_pos, width, enable))
-
 
 class GeneticsPackage():
     def __init__(self, in_dem, out_dem):

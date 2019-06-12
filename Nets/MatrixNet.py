@@ -1,13 +1,7 @@
-from functools import total_ordering
-
 import numpy, random, math, pygame
 
 
-from formulas import distance_formula, sigmoid, sigmoid_der
-
-
-def color_formula(x):
-    return [0, int(x * 255.), 0]
+from formulas import distance_formula, sigmoid, sigmoid_der, color_formula
 
 
 class MatrixNet:

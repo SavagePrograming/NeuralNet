@@ -1,10 +1,7 @@
 import random
 
 from Nets.MatrixNet import MatrixNet
-from formulas import sigmoid, sigmoid_der
-
-def color_formula(x):
-    return [int(x * 255.), 255, int(x * 255.)]
+from formulas import sigmoid, sigmoid_der, color_formula
 
 
 class EvolvingNet(MatrixNet):
