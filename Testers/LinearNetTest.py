@@ -16,23 +16,6 @@ def imitater(ar):
 
 
 enabled_weights = ([[True] * sum(DIMEN[1:-1]) + [False]] * DIMEN[0]) + [[True] * (sum(DIMEN[1:-1]) + 1)] + ([[False] * sum(DIMEN[1:-1]) + [True]] *sum(DIMEN[1:-1]))
-print(numpy.array(enabled_weights))
-# [[True, True, True],
-#                    [True, True, True],
-#                    [True, True, True],
-#                    [False, True, True],
-#                    [False, False, True]]
-
-# [[True, True, True, True, True, True],
-#    [True, True, True, True, True, True],
-#    [True, True, True, True, True, True],
-#    [False, True, True, True, True, True],
-#    [False, False, True, True, True, True],
-#    [False, False, False, True, True, True],
-#    [False, False, False, False, True, True],
-#    [False, False, False, False, False, True]]
-
-# while numpy.linalg.norm(Net.getOut()
 
 pygame.init()
 Screen = pygame.display.set_mode([WIDTH, HEIGHT])
@@ -57,11 +40,7 @@ for i in range(0, NUMBER_OF_STATES):
     for i in range(0, STATE_SIZE):
         State.append(random.choice([1, 0]))
     States.append(State)
-    # States.append([, random.choice([1, 0]), random.choice([1, 0]), random.choice([1, 0])])
-# States = [[0.0, 1.0],
-#           [1.0, 1.0],
-#           [1.0, 0.0],
-#           [0.0, 0.0]]
+
 StatesIndex = 0
 Input = States[StatesIndex]
 Net.set_in(Input)
@@ -70,9 +49,9 @@ delay = 0
 error_array = []
 while KEEP:
     pygame.time.delay(delay)
-    # input("-----------------------")
+
     Net.get_out()
-    # print(imitater(Input))
+
     error = Net.learn(Ratio, imitater(Input))
     error_array.append(int((HEIGHT - 100) - error * 50.0))
     if len(error_array) > ERROR_SIZE:

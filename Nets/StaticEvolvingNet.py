@@ -37,8 +37,7 @@ class StaticEvolvingNet(MatrixNet):
 
     def breed(self, evolvingNet2):
         assert self.compatable(evolvingNet2)
-        newWeights = [] #self.WeightArray
-        # print(newWeights)
+        newWeights = []
         for i in range(len(self.WeightArray)):
             newWeights.append([])
             for j in range(len(self.WeightArray[i])):
@@ -52,8 +51,7 @@ class StaticEvolvingNet(MatrixNet):
         return newNet
 
     def replicate(self):
-        newWeights = [] #self.WeightArray
-        # print(newWeights)
+        newWeights = []
         for i in range(len(self.WeightArray)):
             newWeights.append([])
             for j in range(len(self.WeightArray[i])):

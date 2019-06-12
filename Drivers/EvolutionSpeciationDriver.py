@@ -140,7 +140,6 @@ class EvolutionSpeciationDriver:
             self.Population.append(child)
         for child in self.Population:
             self.add_to_specie(child)
-        # if not len(self.Species) > self.PopulationSize:
         print("Threshold: " + str(self.SpeciesThreshold))
         print("Species:" + str(len(self.Species)))
 
@@ -151,16 +150,13 @@ class EvolutionSpeciationDriver:
                 child = self.Population[i % survivors].breed(random.choice(self.Population[:survivors]))
             else:
                 child = self.Population[i % survivors].replicate()
-            # child = self.Population[i % survivors].breed(random.choice(self.Population[:survivors]))
             self.Population.append(child)
             self.add_to_specie(child)
-        # if not len(self.Species) > self.PopulationSize:
         print("Species:" + str(len(self.Species)))
 
     def add_to_specie(self, child):
         remaining = True
         for s in range(len(self.Species)):
-            # print(child.distance(self.Species[s][0]))
             if child.distance(self.Species[s][0]) < self.SpeciesThreshold:
                 self.Species[s].append(child)
                 remaining = False
