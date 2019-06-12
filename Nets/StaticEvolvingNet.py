@@ -26,13 +26,13 @@ class StaticEvolvingNet(MatrixNet):
         if genetics_weights is not None:
             self.WeightArray = genetics_weights
 
-    def compatable(self, evolvingNet2):
+    def compatible(self, evolvingNet2):
         return self.InDem == evolvingNet2.InDem and \
                self.OutDem == evolvingNet2.OutDem and \
                self.Layers == evolvingNet2.Layers
 
     def breed(self, evolvingNet2):
-        assert self.compatable(evolvingNet2)
+        assert self.compatible(evolvingNet2)
         newWeights = []
         for i in range(len(self.WeightArray)):
             newWeights.append([])

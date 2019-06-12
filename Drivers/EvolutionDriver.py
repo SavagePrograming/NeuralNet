@@ -1,75 +1,83 @@
 import random
 
+import pygame
 from numpy import mean, median
-
+from typing import ClassVar, List
 from Nets.EvolvingNet import EvolvingNet
+from Simulations import EvolutionSimulation
 
 
 class EvolutionDriver:
-    def __init__(self, population_size, survivor_ratio, simlulation, generation_size, row_size, row_count, mutability=0.5,
-                 evolving_class=EvolvingNet):
-        self.InDem = simlulation.InDem
-        self.OutDem = simlulation.OutDem
-        self.row_size = row_size
-        self.row_count = row_count
-        self.PopulationSize = population_size
-        self.Mutability = mutability
-        self.SurvivorRatio = survivor_ratio
-        self.Simulation = simlulation
-        self.EvolvingClass = evolving_class
-        self.GenerationSize = generation_size
-        self.Median = 0.0
-        self.Average = 0.0
-        self.Maximum = 0.0
-        self.Minimum = 0.0
+    def __init__(self,
+                 population_size: int,
+                 survivor_ratio: float,
+                 simulation: EvolutionSimulation,
+                 generation_size: int,
+                 row_size: int,
+                 row_count: int,
+                 mutability: float = 0.5,
+                 evolving_class: ClassVar = EvolvingNet):
+        self.in_dem: int = simulation.InDem
+        self.out_dem: int = simulation.OutDem
+        self.row_size: int = row_size
+        self.row_count: int = row_count
+        self.population_size: int = population_size
+        self.mutability: float = mutability
+        self.survivor_ratio: float = survivor_ratio
+        self.simulation = simulation
+        self.evolving_class = evolving_class
+        self.generation_size: int = generation_size
+        self.median: float = 0.0
+        self.average: float = 0.0
+        self.maximum: float = 0.0
+        self.minimum: float = 0.0
 
-        self.Population = []
-        for i in range(self.PopulationSize):
-            self.Population.append(self.EvolvingClass(self.InDem, self.OutDem, 1, mutability=mutability))
+        self.population: List[evolving_class] = []
+        for i in range(self.population_size):
+            self.population.append(self.evolving_class(self.in_dem, self.out_dem, 1, mutability=mutability))
 
     def run(self):
-        self.Simulation.restart()
-        Fitness = self.Simulation.run_generations(self.Population, self.GenerationSize)
-        self.Average = mean(Fitness)
-        self.Median = median(Fitness)
-        self.Maximum = max(Fitness)
-        self.Minimum = min(Fitness)
-        self.repopulate(Fitness)
+        self.simulation.restart()
+        fitness = self.simulation.run_generations(self.population, self.generation_size)
+        self.average = mean(fitness)
+        self.median = median(fitness)
+        self.maximum = max(fitness)
+        self.minimum = min(fitness)
+        self.repopulate(fitness)
 
     def test(self):
-        Fitness = self.Simulation.run(self.Population)
-        self.Average = mean(Fitness)
-        self.Median = median(Fitness)
-        self.Maximum = max(Fitness)
-        self.Minimum = min(Fitness)
+        fitness = self.simulation.run(self.population)
+        self.average = mean(fitness)
+        self.median = median(fitness)
+        self.maximum = max(fitness)
+        self.minimum = min(fitness)
 
-    def draw(self, screen, x, y, width, height, dot_size=10):
+    def draw(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, dot_size: int=10):
         for i in range(self.row_count * self.row_size):
-            self.Population[i].draw(screen,
+            self.population[i].draw(screen,
                                     x + (i % self.row_size) * (width // self.row_size),
                                     y + (i // self.row_size) * (height // self.row_count),
                                     width // self.row_size,
                                     height // self.row_count,
                                     dot_size)
 
-    def run_visual(self, screen, x, y, width, height, dot_size=10):
-        self.Simulation.restart()
-        Fitness = self.Simulation.run_generations_visual(self.Population,
-                                                         self.GenerationSize, self,
+    def run_visual(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, dot_size: int=10):
+        self.simulation.restart()
+        fitness = self.simulation.run_generations_visual(self.population,
+                                                         self.generation_size, self,
                                                          screen, x, y, width, height, dot_size)
-        self.Average = mean(Fitness)
-        self.Median = median(Fitness)
-        self.Maximum = max(Fitness)
-        self.Minimum = min(Fitness)
-        self.repopulate(Fitness)
+        self.average = mean(fitness)
+        self.median = median(fitness)
+        self.maximum = max(fitness)
+        self.minimum = min(fitness)
+        self.repopulate(fitness)
 
+    def repopulate(self, fitness: List[float]):
+        for i in range(len(fitness)):
+            self.population[i].Score = fitness[i]
+        self.population.sort(reverse=True)
+        self.population = self.population[:int(self.population_size * self.survivor_ratio)]
 
-    def repopulate(self, Fitness):
-        for i in range(len(Fitness)):
-            self.Population[i].Score = Fitness[i]
-        self.Population.sort(reverse=True)
-        self.Population = self.Population[:int(self.PopulationSize * self.SurvivorRatio)]
-
-        size = len(self.Population)
-        for i in range(self.PopulationSize - len(self.Population)):
-            self.Population.append(self.Population[i % size].breed(random.choice(self.Population[:size])))
+        size = len(self.population)
+        for i in range(self.population_size - len(self.population)):
+            self.population.append(self.population[i % size].breed(random.choice(self.population[:size])))

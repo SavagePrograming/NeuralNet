@@ -1,7 +1,7 @@
 from Testers.EvolutionTrainer import EvolutionTrainer
 from Nets.StaticEvolvingNet import StaticEvolvingNet
 from Drivers.EvolutionSpeciationDriver import EvolutionSpeciationDriver
-from Simulations.EvolutionSimulation import EvolveSimulation
+from Simulations.EvolutionSimulation import EvolutionSimulation
 
 
 def IMITATOR(ar):
@@ -11,7 +11,7 @@ def IMITATOR(ar):
 IN_SIZE = 2
 OUT_SIZE = 2
 LAYERS = 0
-SIM = EvolveSimulation(imitator=IMITATOR, in_dem=IN_SIZE, out_dem=OUT_SIZE, layers = LAYERS)
+SIM = EvolutionSimulation(imitator=IMITATOR, in_dem=IN_SIZE, out_dem=OUT_SIZE, layers = LAYERS)
 
 POPULATION_SIZE = 300
 SURVIVOR_RATIO = .75

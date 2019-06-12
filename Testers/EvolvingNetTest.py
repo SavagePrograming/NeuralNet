@@ -28,7 +28,7 @@ def imitater(ar):
     return [1.0, 0.0] if ar[0] != ar[1] else [0.0, 1.0]
 
 
-sim = EvolutionSimulation.EvolveSimulation(imitater, IN_DEM, OUT_DEM)
+sim = EvolutionSimulation.EvolutionSimulation(imitater, IN_DEM, OUT_DEM)
 
 driver = EvolutionSpeciationDriver.EvolutionSpeciationDriver(POPULATION_SIZE, SURVIVOR_RATIO,
                                                              sim, GENERATION_LENGTH, SPECIES_THRESHOLD,
@@ -56,7 +56,7 @@ while KEEP:
         driver.draw(Screen, DISPLAY_ROW_SIZE, DISPLAY_ROW_COUNT, 0, 0, WIDTH, HEIGHT - 200, 10)
     else:
         driver.run_visual(Screen, DISPLAY_ROW_SIZE, DISPLAY_ROW_COUNT, 0, 0, WIDTH, HEIGHT - 200, 10)
-    error_array.append((driver.Maximum, driver.Average, driver.Median, driver.Minimum))
+    error_array.append((driver.maximum, driver.average, driver.median, driver.minimum))
     if len(error_array) > ERROR_SIZE:
         error_array.pop(0)
 

@@ -24,7 +24,7 @@ enabled_weights = [[True, True, False],
 limit = 0
 Net = LinearNet.LinearNet(in_dem=DIMEN[0], out_dem=DIMEN[-1], middle_dem=sum(DIMEN[1:-1]),
                           weight_range=WEIGHT_RATIO)  # , enabled_weights=enabled_weights)
-Net2 = MatrixNet.MatrixNet(Dem=DIMEN, weight_range=WEIGHT_RATIO)
+Net2 = MatrixNet.MatrixNet(dimensions=DIMEN, weight_range=WEIGHT_RATIO)
 
 pygame.init()
 Screen = pygame.display.set_mode([WIDTH, HEIGHT])

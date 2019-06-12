@@ -1,6 +1,8 @@
 import numpy
 import pygame
 
+from Simulations.EvolutionSimulation import EvolutionSimulation
+
 
 def numtobits(num, bits):
     l = [0] * bits
@@ -25,7 +27,7 @@ def add(arr):
 from formulas import distance_formula
 
 
-class AdditionSimulation:
+class AdditionSimulation(EvolutionSimulation):
     def __init__(self):
         self.InDem = 6
         self.OutDem = 4

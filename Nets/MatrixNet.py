@@ -1,146 +1,134 @@
-import numpy, random, math, pygame
+from typing import Tuple, List, Callable
 
+import numpy, random, math, pygame
 
 from formulas import distance_formula, sigmoid, sigmoid_der, color_formula
 
 
 class MatrixNet:
-    def __init__(self, Dem, weight_range, activation=sigmoid, activation_der=sigmoid_der,
-                 color_formula_param=color_formula):
-        self.InputArray = numpy.array([[0]] * Dem[0])
-        self.WeightArray = []
-        self.NodesValueArray = []
-        self.ActivationFunction = activation
-        self.activation_function_derivative = activation_der
-        self.ColorFormula = color_formula_param
-        self.Dimensions = Dem
-        self.Score = 0
+    def __init__(self,
+                 dimensions: List[int],
+                 weight_range: Tuple[int, int],
+                 activation: Callable = sigmoid,
+                 activation_der: Callable = sigmoid_der,
+                 color_formula_param: Callable = color_formula):
+        self.input_array: numpy.array = numpy.array([[0]] * dimensions[0])
+        self.weight_array: List[numpy.array] = []
+        self.nodes_value_array: List[List[List[int]]] = []
+        self.activation_function: Callable = activation
+        self.activation_function_derivative: Callable = activation_der
+        self.color_formula: callable() = color_formula_param
+        self.dimensions: List[int] = dimensions
+        self.score: float = 0
 
-        for i in range(1, len(Dem)):
-            Node_array = []
-            Weight_array = []
+        for i in range(1, len(dimensions)):
+            node_array = []
+            weight_array = []
 
-            for ii in range(0, Dem[i]):
-                Node_array.append([0])
-                Weight_array.append([])
-                for iii in range(0, Dem[i - 1] + 1):
-                    Weight_array[ii].append(random.random() * (weight_range[1] - weight_range[0]) + weight_range[0])
+            for ii in range(0, dimensions[i]):
+                node_array.append([0])
+                weight_array.append([])
+                for iii in range(0, dimensions[i - 1] + 1):
+                    weight_array[ii].append(random.random() * (weight_range[1] - weight_range[0]) + weight_range[0])
 
-            self.WeightArray.append(numpy.array(Weight_array))
-            self.NodesValueArray.append(numpy.array(Node_array))
+            self.weight_array.append(numpy.array(weight_array))
+            self.nodes_value_array.append(numpy.array(node_array))
 
-    def __init__Origional(self, Dem, weight_range):
-        self.InputArray = numpy.array([[0]] * Dem[0])
-        self.WeightArray = []
-        self.NodesValueArray = []
-        for i in range(1, len(Dem)):
-            Node_array = []
-            Weight_array = []
-
-            for ii in range(0, Dem[i]):
-                Node_array.append([0])
-                Weight_array.append([])
-                for iii in range(0, Dem[i - 1]):
-                    Weight_array[ii].append(random.random() * (weight_range[1] - weight_range[0]) + weight_range[0])
-
-            self.WeightArray.append(numpy.array(Weight_array))
-            self.NodesValueArray.append(numpy.array(Node_array))
-
-    def set_in(self, array):
-        if len(array) == len(self.InputArray):
+    def set_in(self, array: List[int]):
+        if len(array) == len(self.input_array):
             for i in range(0, len(array)):
                 if array[i] is not None:
-                    self.InputArray[i][0] = array[i]
+                    self.input_array[i][0] = array[i]
 
     def get_out(self):
-        self.NodesValueArray[0] = self.ActivationFunction(
-            self.WeightArray[0].dot(numpy.reshape(numpy.append(self.InputArray, 1.0), ((len(self.InputArray) + 1), 1))))
+        self.nodes_value_array[0] = self.activation_function(
+            self.weight_array[0].dot(
+                numpy.reshape(numpy.append(self.input_array, 1.0), ((len(self.input_array) + 1), 1))))
 
-        for i in range(1, len(self.NodesValueArray)):
-            self.NodesValueArray[i] = self.ActivationFunction(self.WeightArray[i].dot(
-                numpy.reshape(numpy.append(self.NodesValueArray[i - 1], 1.0),
-                              ((len(self.NodesValueArray[i - 1]) + 1), 1))))
-        return self.NodesValueArray[-1]
+        for i in range(1, len(self.nodes_value_array)):
+            self.nodes_value_array[i] = self.activation_function(self.weight_array[i].dot(
+                numpy.reshape(numpy.append(self.nodes_value_array[i - 1], 1.0),
+                              ((len(self.nodes_value_array[i - 1]) + 1), 1))))
+        return self.nodes_value_array[-1]
 
-    def learn(self, ratio, target):
-        l = len(target)
+    def learn(self, ratio: float, target: List[int]):
+        target_length = len(target)
 
-        target = numpy.reshape(numpy.array([target]), (l, 1))
+        target = numpy.reshape(numpy.array([target]), (target_length, 1))
 
-        past = numpy.multiply(2.0, (numpy.subtract(target, self.NodesValueArray[-1])))
+        past = numpy.multiply(2.0, (numpy.subtract(target, self.nodes_value_array[-1])))
 
-        error = distance_formula(target, self.NodesValueArray[-1])
+        error = distance_formula(target, self.nodes_value_array[-1])
 
-        for i in range(len(self.NodesValueArray) - 1, 0, -1):
+        for i in range(len(self.nodes_value_array) - 1, 0, -1):
+            nodes_value_array_temp = self.nodes_value_array[i]
 
-            NodesValueArraytemp = self.NodesValueArray[i]
+            nodes_value_array_temp2 = numpy.reshape(numpy.append(self.nodes_value_array[i - 1], 1),
+                                                    (1, len(self.nodes_value_array[i - 1]) + 1))
 
-            NodesValueArraytemp2 = numpy.reshape(numpy.append(self.NodesValueArray[i - 1], 1),
-                                                 (1, len(self.NodesValueArray[i - 1]) + 1))
-
-            sigder = self.activation_function_derivative(NodesValueArraytemp)
-            sigder_with_past = numpy.multiply(sigder, past)
-            current = sigder_with_past.dot(NodesValueArraytemp2)
-            past = numpy.transpose(sigder_with_past).dot(self.WeightArray[i])
+            sigmoid_derivative = self.activation_function_derivative(nodes_value_array_temp)
+            sigmoid_derivative_with_past = numpy.multiply(sigmoid_derivative, past)
+            current = sigmoid_derivative_with_past.dot(nodes_value_array_temp2)
+            past = numpy.transpose(sigmoid_derivative_with_past).dot(self.weight_array[i])
             past = numpy.reshape(past, (len(past[0]), 1))[:-1]
             current = numpy.multiply(current, ratio)
-            self.WeightArray[i] = numpy.add(self.WeightArray[i], current)
+            self.weight_array[i] = numpy.add(self.weight_array[i], current)
 
-        NodesValueArraytemp = self.NodesValueArray[0]
+        nodes_value_array_temp = self.nodes_value_array[0]
 
-        NodesValueArraytemp2 = numpy.reshape(numpy.append(self.InputArray, 1),
-                                             (1, len(self.InputArray) + 1))
-        sig = self.activation_function_derivative(NodesValueArraytemp)
-        sig_with_past = numpy.multiply(sig, past)
+        nodes_value_array_temp2 = numpy.reshape(numpy.append(self.input_array, 1),
+                                                (1, len(self.input_array) + 1))
+        sigmoid_derivative = self.activation_function_derivative(nodes_value_array_temp)
+        sigmoid_derivative_with_past = numpy.multiply(sigmoid_derivative, past)
 
-        current = sig_with_past.dot(NodesValueArraytemp2)
+        current = sigmoid_derivative_with_past.dot(nodes_value_array_temp2)
         current = numpy.multiply(current, ratio)
-        self.WeightArray[0] = numpy.add(self.WeightArray[0], current)
+        self.weight_array[0] = numpy.add(self.weight_array[0], current)
 
         return error
 
-    def draw(self, screen, x, y, width, height, scale_dot=5):
-        scale_y = (height - scale_dot * 2) // max(self.Dimensions)
-        scale_x = (width - scale_dot * 2) // (len(self.Dimensions) - 1)
-        for y_ in range(0, len(self.InputArray)):
-            pygame.draw.circle(screen, self.ColorFormula(self.InputArray[y_]),
+    def draw(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, scale_dot: int = 5):
+        scale_y = (height - scale_dot * 2) // max(self.dimensions)
+        scale_x = (width - scale_dot * 2) // (len(self.dimensions) - 1)
+        for y_ in range(0, len(self.input_array)):
+            pygame.draw.circle(screen, self.color_formula(self.input_array[y_]),
                                [int(x + scale_dot), int(y + scale_dot + y_ * scale_y)],
                                int(scale_dot))
-        for x_ in range(0, len(self.NodesValueArray)):
-            for y_ in range(0, len(self.NodesValueArray[x_])):
-                pygame.draw.circle(screen, self.ColorFormula(self.NodesValueArray[x_][y_]),
+        for x_ in range(0, len(self.nodes_value_array)):
+            for y_ in range(0, len(self.nodes_value_array[x_])):
+                pygame.draw.circle(screen, self.color_formula(self.nodes_value_array[x_][y_]),
                                    [int(x + scale_dot + (x_ + 1) * scale_x), int(y + scale_dot + y_ * scale_y)],
                                    int(scale_dot))
-                for y2 in range(0, len(self.WeightArray[x_][y_])):
+                for y2 in range(0, len(self.weight_array[x_][y_])):
                     pygame.draw.line(screen,
-                                     [255. - 255. * self.ActivationFunction(self.WeightArray[x_][y_][y2]), 125
-                                      , 255. * self.ActivationFunction(self.WeightArray[x_][y_][y2])],
+                                     [255. - 255. * self.activation_function(self.weight_array[x_][y_][y2]), 125
+                                         , 255. * self.activation_function(self.weight_array[x_][y_][y2])],
                                      [x + scale_dot + (x_ + 1) * scale_x, y + scale_dot + y_ * scale_y],
                                      [x + scale_dot + (x_) * scale_x, y + scale_dot + y2 * scale_y])
 
     def __eq__(self, other):
-        return self.Score == other.Score
+        return self.score == other.score
 
     def __lt__(self, other):
-        return self.Score < other.Score
+        return self.score < other.score
 
     def __gt__(self, other):
-        return self.Score > other.Score
+        return self.score > other.score
 
     def __ge__(self, other):
-        return self.Score >= other.Score
+        return self.score >= other.score
 
     def __le__(self, other):
-        return self.Score <= other.Score
+        return self.score <= other.score
 
     def __add__(self, other):
         if isinstance(other, MatrixNet):
-            return self.Score + other.Score
+            return self.score + other.score
         else:
-            return self.Score + other
+            return self.score + other
 
     def __radd__(self, other):
         if isinstance(other, MatrixNet):
-            return self.Score + other.Score
+            return self.score + other.score
         else:
-            return self.Score + other
+            return self.score + other

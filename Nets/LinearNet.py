@@ -1,3 +1,5 @@
+from typing import List, Callable
+
 import numpy, math, pygame
 
 from formulas import distance_formula, sigmoid, sigmoid_der, randomize, color_formula, color_formula_line, \
@@ -6,21 +8,21 @@ from formulas import distance_formula, sigmoid, sigmoid_der, randomize, color_fo
 
 class LinearNet:
     def __init__(self,
-                 in_dem,
-                 out_dem,
-                 middle_dem,
-                 weight_range=[2.0, -2.0],
-                 enabled_weights=None,
-                 activation=sigmoid,
-                 activation_der=sigmoid_der,
-                 color_formula_param=color_formula,
-                 weights=None):
+                 in_dem: int,
+                 out_dem: int,
+                 middle_dem: int,
+                 weight_range: List[float] = [2.0, -2.0],
+                 enabled_weights: numpy.array = None,
+                 activation: Callable = sigmoid,
+                 activation_der: Callable = sigmoid_der,
+                 color_formula_param: Callable = color_formula,
+                 weights: numpy.array = None):
 
-        self.in_dem = in_dem + 1
-        self.out_dem = out_dem
-        self.middle_dem = middle_dem
+        self.in_dem: int = in_dem + 1
+        self.out_dem: int = out_dem
+        self.middle_dem: int = middle_dem
 
-        self.Score = 0
+        self.score = 0
         self.input_nodes = numpy.zeros((1, self.in_dem))
 
         self.node_values = numpy.zeros((1, self.middle_dem + self.out_dem))
@@ -34,19 +36,19 @@ class LinearNet:
             self.weights = numpy.add(weight_range[1], numpy.multiply(dif, self.weights))
 
         if enabled_weights:
-            self.enabled_weights = enabled_weights
+            self.enabled_weights: numpy.array = enabled_weights
         else:
-            self.enabled_weights = numpy.array([
+            self.enabled_weights: numpy.array = numpy.array([
                 [in_node < out_node
                  for out_node in range(self.in_dem, self.in_dem + self.middle_dem + self.out_dem)]
                 for in_node in range(self.in_dem + self.middle_dem)])
 
-        self.activation_function = activation
-        self.activation_derivative = activation_der
+        self.activation_function: Callable = activation
+        self.activation_derivative: Callable = activation_der
 
-        self.color_formula = color_formula_param
+        self.color_formula: Callable = color_formula_param
 
-    def update(self, screen, x, y, width, height, scale_dot=5):
+    def update(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, scale_dot: int = 5):
 
         in_spacing = (height - scale_dot * 2) / (self.in_dem + 1)
         out_spacing = (height - scale_dot * 2) / (self.out_dem + 1)
@@ -120,7 +122,7 @@ class LinearNet:
         any(map(draw_circle, self.out_screen_range, self.out_color_range, self.out_range_loc,
                 self.out_radius_range))
 
-    def set_in(self, array):
+    def set_in(self, array: List[int]):
         array = array + [1.0]
         assert len(array) == self.in_dem
         self.input_nodes = numpy.array(array, ndmin=2)
@@ -141,7 +143,7 @@ class LinearNet:
 
         return self.node_values[0][self.middle_dem:]
 
-    def learn(self, ratio, target):
+    def learn(self, ratio: int, target: List[int]):
         self.weights = numpy.multiply(self.weights, self.enabled_weights)
         target = numpy.reshape(target, (1, len(target)))
 
@@ -175,28 +177,28 @@ class LinearNet:
         return error
 
     def __eq__(self, other):
-        return self.Score == other.Score
+        return self.score == other.score
 
     def __lt__(self, other):
-        return self.Score < other.Score
+        return self.score < other.score
 
     def __gt__(self, other):
-        return self.Score > other.Score
+        return self.score > other.score
 
     def __ge__(self, other):
-        return self.Score >= other.Score
+        return self.score >= other.score
 
     def __le__(self, other):
-        return self.Score <= other.Score
+        return self.score <= other.score
 
     def __add__(self, other):
         if isinstance(other, LinearNet):
-            return self.Score + other.Score
+            return self.score + other.score
         else:
-            return self.Score + other
+            return self.score + other
 
     def __radd__(self, other):
         if isinstance(other, LinearNet):
-            return self.Score + other.Score
+            return self.score + other.score
         else:
-            return self.Score + other
+            return self.score + other

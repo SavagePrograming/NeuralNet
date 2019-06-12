@@ -1,9 +1,12 @@
 import random
+from typing import ClassVar, List
 
+import pygame
 from math import ceil
 from numpy import mean, median, math
 
 from Nets.EvolvingNet import EvolvingNet
+from Simulations.EvolutionSimulation import EvolutionSimulation
 
 
 def clean(a):
@@ -16,150 +19,156 @@ def clean(a):
 
 
 class EvolutionSpeciationDriver:
-    def __init__(self, population_size, survivor_ratio, simulation,
-                 generation_size, species_threshold, species_independent_survivor_ratio, balancing_focus,
-                 mutability=0.5,
-                 evolving_class=EvolvingNet):
-        self.BalanceTop = .5
-        self.BalanceBottom = .25
-        self.SpeciesThreshold = species_threshold
-        self.BalanceFocus = balancing_focus
-        self.SISR = species_independent_survivor_ratio
-        self.InDem = simulation.InDem
-        self.OutDem = simulation.OutDem
-        self.PopulationSize = population_size
-        self.Mutability = mutability
-        self.SurvivorRatio = survivor_ratio
-        self.Simulation = simulation
-        self.EvolvingClass = evolving_class
-        self.GenerationSize = generation_size
-        self.Median = 0.0
-        self.Average = 0.0
-        self.Maximum = 0.0
-        self.Minimum = 0.0
-        self.Species = []
+    def __init__(self,
+                 population_size: int,
+                 survivor_ratio: float,
+                 simulation: EvolutionSimulation,
+                 generation_size: int,
+                 species_threshold: float,
+                 species_independent_survivor_ratio: float,
+                 balancing_focus: float,
+                 mutability: float = 0.5,
+                 evolving_class: ClassVar = EvolvingNet):
+        self.balance_top: float = .5
+        self.balance_bottom: float = .25
+        self.species_threshold: float = species_threshold
+        self.balance_focus: float = balancing_focus
+        self.SISR: float = species_independent_survivor_ratio
+        self.in_dem: int = simulation.InDem
+        self.out_dem: int = simulation.OutDem
+        self.population_size: int = population_size
+        self.mutability: float = mutability
+        self.survivor_ratio: float = survivor_ratio
+        self.simulation: EvolutionSimulation = simulation
+        self.evolving_class = evolving_class
+        self.generation_size: int = generation_size
+        self.median: float = 0.0
+        self.average: float = 0.0
+        self.maximum: float = 0.0
+        self.minimum: float = 0.0
+        self.species: List[List[evolving_class]] = []
 
-        self.Population = []
-        for i in range(self.PopulationSize):
-            child = self.EvolvingClass(self.InDem, self.OutDem, self.Simulation.Layers, mutability=mutability)
-            self.Population.append(child)
+        self.population: List[evolving_class] = []
+        for i in range(self.population_size):
+            child = self.evolving_class(self.in_dem, self.out_dem, self.simulation.Layers, mutability=mutability)
+            self.population.append(child)
             self.add_to_specie(child)
 
     def run(self):
-        self.Simulation.restart()
-        Fitness = self.Simulation.run_generations(self.Population, self.GenerationSize)
-        self.Average = mean(Fitness)
-        self.Median = median(Fitness)
-        self.Maximum = max(Fitness)
-        self.Minimum = min(Fitness)
-        self.repopulate(Fitness)
+        self.simulation.restart()
+        fitness = self.simulation.run_generations(self.population, self.generation_size)
+        self.average = mean(fitness)
+        self.median = median(fitness)
+        self.maximum = max(fitness)
+        self.minimum = min(fitness)
+        self.repopulate(fitness)
 
     def test(self):
-        Fitness = self.Simulation.run(self.Population)
-        self.Average = mean(Fitness)
-        self.Median = median(Fitness)
-        self.Maximum = max(Fitness)
-        self.Minimum = min(Fitness)
+        fitness = self.simulation.run(self.population)
+        self.average = mean(fitness)
+        self.median = median(fitness)
+        self.maximum = max(fitness)
+        self.minimum = min(fitness)
 
-    def draw(self, screen, x, y, width, height, dot_size=10):
-
-        row_count = int(math.sqrt(len(self.Species)))
-        row_size = math.ceil(len(self.Species) / row_count)
+    def draw(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, dot_size: int = 10):
+        row_count = int(math.sqrt(len(self.species)))
+        row_size = math.ceil(len(self.species) / row_count)
         for i in range(row_count * row_size):
-            if len(self.Species) > i:
-                self.Species[i][0].draw(screen,
+            if len(self.species) > i:
+                self.species[i][0].draw(screen,
                                         x + (i % row_size) * (width // row_size),
                                         y + (i // row_size) * (height // row_count),
                                         width // row_size,
                                         height // row_count,
                                         dot_size)
 
-    def run_visual(self, screen, x, y, width, height, dot_size=10):
-        self.Simulation.restart()
-        Fitness = self.Simulation.run_generations_visual(self.Population, self.GenerationSize, self, screen, x, y, width, height, dot_size)
-        self.Average = mean(Fitness)
-        self.Median = median(Fitness)
-        self.Maximum = max(Fitness)
-        self.Minimum = min(Fitness)
-        self.repopulate(Fitness)
+    def run_visual(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, dot_size: int = 10):
+        self.simulation.restart()
+        fitness = self.simulation.run_generations_visual(self.population, self.generation_size, self, screen, x, y,
+                                                         width, height, dot_size)
+        self.average = mean(fitness)
+        self.median = median(fitness)
+        self.maximum = max(fitness)
+        self.minimum = min(fitness)
+        self.repopulate(fitness)
 
-    def repopulate(self, Fitness):
-        survivors = int(self.PopulationSize * self.SurvivorRatio) - ceil(self.PopulationSize * self.SISR)
-        for i in range(len(Fitness)):
-            self.Population[i].Score = Fitness[i]
+    def repopulate(self, fitness: List[float]):
+        survivors = int(self.population_size * self.survivor_ratio) - ceil(self.population_size * self.SISR)
+        for i in range(len(fitness)):
+            self.population[i].Score = fitness[i]
         SIS = []
         if self.SISR < .25:
-            for i in range(ceil(self.PopulationSize * self.SISR)):
-                MAX = max(self.Population)
-                self.Population.remove(MAX)
+            for i in range(ceil(self.population_size * self.SISR)):
+                MAX = max(self.population)
+                self.population.remove(MAX)
                 SIS.append(MAX)
         else:
-            self.Population.sort(reverse=True)
-            SIS = self.Population[:ceil(self.PopulationSize * self.SISR)]
-            self.Population = self.Population[ceil(self.PopulationSize * self.SISR):]
+            self.population.sort(reverse=True)
+            SIS = self.population[:ceil(self.population_size * self.SISR)]
+            self.population = self.population[ceil(self.population_size * self.SISR):]
 
-        for s in range(len(self.Species)):
-            size = len(self.Species[s])
-            for net in self.Species[s]:
-                net.Score /= size
-        self.Population.sort(reverse=True)
-        self.Population = self.Population[:survivors]
-        self.Population = SIS + self.Population
-        for s in range(len(self.Species)):
+        for s in range(len(self.species)):
+            size = len(self.species[s])
+            for net in self.species[s]:
+                net.score /= size
+        self.population.sort(reverse=True)
+        self.population = self.population[:survivors]
+        self.population = SIS + self.population
+        for s in range(len(self.species)):
             n = 0
-            while n < len(self.Species[s]):
-                if self.Species[s][n] not in self.Population:
-                    del self.Species[s][n]
+            while n < len(self.species[s]):
+                if self.species[s][n] not in self.population:
+                    del self.species[s][n]
                 else:
                     n += 1
-        if self.BalanceFocus == 0:
-            clean(self.Species)
-            self.speciate(self.PopulationSize - int(self.PopulationSize * self.SurvivorRatio))
+        if self.balance_focus == 0:
+            clean(self.species)
+            self.speciate(self.population_size - int(self.population_size * self.survivor_ratio))
         else:
-            print("Species:" + str(len(self.Species)))
-            if len(self.Species) / self.PopulationSize > self.BalanceTop:
-                self.SpeciesThreshold += self.BalanceFocus
-                clean(self.Species)
-                self.respeciate(self.PopulationSize - int(self.PopulationSize * self.SurvivorRatio))
-            elif len(self.Species) / self.PopulationSize < self.BalanceBottom:
-                self.SpeciesThreshold -= self.BalanceFocus
-                clean(self.Species)
-                self.respeciate(self.PopulationSize - int(self.PopulationSize * self.SurvivorRatio))
+            print("Species:" + str(len(self.species)))
+            if len(self.species) / self.population_size > self.balance_top:
+                self.species_threshold += self.balance_focus
+                clean(self.species)
+                self.respeciate(self.population_size - int(self.population_size * self.survivor_ratio))
+            elif len(self.species) / self.population_size < self.balance_bottom:
+                self.species_threshold -= self.balance_focus
+                clean(self.species)
+                self.respeciate(self.population_size - int(self.population_size * self.survivor_ratio))
             else:
-                clean(self.Species)
-                self.speciate(self.PopulationSize - int(self.PopulationSize * self.SurvivorRatio))
+                clean(self.species)
+                self.speciate(self.population_size - int(self.population_size * self.survivor_ratio))
 
-    def respeciate(self, size):
-        survivors = len(self.Population)
-        self.Species = []
+    def respeciate(self, size: int):
+        survivors = len(self.population)
+        self.species = []
         for i in range(size):
             if random.random() < .5:
-                child = self.Population[i % survivors].breed(random.choice(self.Population[:survivors]))
+                child = self.population[i % survivors].breed(random.choice(self.population[:survivors]))
             else:
-                child = self.Population[i % survivors].replicate()
-            self.Population.append(child)
-        for child in self.Population:
+                child = self.population[i % survivors].replicate()
+            self.population.append(child)
+        for child in self.population:
             self.add_to_specie(child)
-        print("Threshold: " + str(self.SpeciesThreshold))
-        print("Species:" + str(len(self.Species)))
+        print("Threshold: " + str(self.species_threshold))
+        print("Species:" + str(len(self.species)))
 
-    def speciate(self, size):
-        survivors = len(self.Population)
+    def speciate(self, size: int):
+        survivors = len(self.population)
         for i in range(size):
             if random.random() < .5:
-                child = self.Population[i % survivors].breed(random.choice(self.Population[:survivors]))
+                child = self.population[i % survivors].breed(random.choice(self.population[:survivors]))
             else:
-                child = self.Population[i % survivors].replicate()
-            self.Population.append(child)
+                child = self.population[i % survivors].replicate()
+            self.population.append(child)
             self.add_to_specie(child)
-        print("Species:" + str(len(self.Species)))
+        print("Species:" + str(len(self.species)))
 
     def add_to_specie(self, child):
         remaining = True
-        for s in range(len(self.Species)):
-            if child.distance(self.Species[s][0]) < self.SpeciesThreshold:
-                self.Species[s].append(child)
+        for s in range(len(self.species)):
+            if child.distance(self.species[s][0]) < self.species_threshold:
+                self.species[s].append(child)
                 remaining = False
                 break
         if remaining:
-            self.Species.append([child])
+            self.species.append([child])

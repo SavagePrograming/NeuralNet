@@ -48,7 +48,7 @@ while KEEP:
         driver.draw(Screen, DISPLAY_ROW_SIZE, DISPLAY_ROW_COUNT, 0, 0, WIDTH, HEIGHT - 200, 10)
     else:
         driver.run_visual(Screen, DISPLAY_ROW_SIZE, DISPLAY_ROW_COUNT, 0, 0, WIDTH, HEIGHT - 200, 2)
-    error_array.append((driver.Maximum, driver.Average, driver.Median, driver.Minimum))
+    error_array.append((driver.maximum, driver.average, driver.median, driver.minimum))
     if len(error_array) > ERROR_SIZE:
         error_array.pop(0)
 

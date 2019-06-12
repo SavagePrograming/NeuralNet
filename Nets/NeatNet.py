@@ -65,10 +65,10 @@ class GeneticsPackage():
         else:
             raise InvalidInnovationNumber(start_node, True)
 
-    def get_node_innovation(self, connection_inovation_number: int) -> int:
-        if connection_inovation_number in self.node_genes:
-            return self.node_genes[connection_inovation_number]
-        raise InvalidInnovationNumber(connection_inovation_number, False)
+    def get_node_innovation(self, connection_innovation_number: int) -> int:
+        if connection_innovation_number in self.node_genes:
+            return self.node_genes[connection_innovation_number]
+        raise InvalidInnovationNumber(connection_innovation_number, False)
 
 
 class NeatNet(LinearNet):
@@ -125,8 +125,8 @@ class NeatNet(LinearNet):
             weights=weights,
         )
 
-    def compatable(self, net):
-        pass
+    def compatible(self, net):
+        if self.InDem == net.InDem and self.OutDem == net.OutDem and:
 
     def breed(self, net):
         pass

@@ -7,7 +7,7 @@ import pygame
 
 from formulas import distance_formula
 
-class EvolveSimulation:
+class EvolutionSimulation:
     def __init__(self, imitator, in_dem, out_dem, layers):
         self.InDem = in_dem
         self.OutDem = out_dem
