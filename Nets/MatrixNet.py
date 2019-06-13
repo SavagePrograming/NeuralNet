@@ -97,6 +97,10 @@ class MatrixNet(Net):
         self.scale_y = (self.height - self.scale_dot * 2) // max(self.dimensions)
         self.scale_x = (self.width - self.scale_dot * 2) // (len(self.dimensions) - 1)
         self.in_screen = [self.screen] * len(self.input_array)
+        self.in_scale = [self.scale_dot] * len(self.input_array)
+        self.in_loc = numpy.zeros((self.in_dem, 2)).astype(int)
+        self.in_loc[:,0:1] = numpy.add(self.in_loc[:,0:1], self.x + self.scale_dot)
+        self.in_loc[:,1:2] = numpy.add(self.y + self.scale_dot, numpy.multiply(self.scale_y, numpy.add(self.in_loc[:,1:2], range(self.in_dem))))
 
     def update_colors(self):
         self.in_colors = list(map(self.color_formula, self.input_array))
@@ -104,9 +108,10 @@ class MatrixNet(Net):
 
 
     def draw(self):
+        self.update_colors()
         for y_ in range(0, len(self.input_array)):
             pygame.draw.circle(self.screen, self.color_formula(self.input_array[y_]),
-                               [int(self.x + self.scale_dot), int(self.y + self.scale_dot + y_ * self.scale_y)],
+                               []
                                int(self.scale_dot))
         for x_ in range(0, len(self.nodes_value_array)):
             for y_ in range(0, len(self.nodes_value_array[x_])):
