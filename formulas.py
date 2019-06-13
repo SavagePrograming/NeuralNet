@@ -24,18 +24,24 @@ def tanh_derivative(x):
 tanh = numpy.tanh
 
 
-
 def rand(num):
     return random.random() + num
 
 
 randomize = numpy.vectorize(rand)
 
+
 def color_formula(x):
     return [0, int(x * 255.), 0]
 
+
+def color_formula_helper(formula, x):
+    return list(map(formula, x))
+
+
 def color_formula_line(x):
     return [255. - 255. * sigmoid(x), 125, 255. * sigmoid(x)]
+
 
 def color_formula_line_helper(x):
     return list(map(color_formula_line, x))
@@ -45,9 +51,14 @@ def draw_circle(screen_range, color_range, in_range_loc, radius_range):
     pygame.draw.circle(screen_range, color_range, in_range_loc, radius_range)
 
 
+def draw_circle_helper(screen_range, color_range, in_range_loc, radius_range):
+    any(map(draw_circle, screen_range, color_range, in_range_loc, radius_range))
+
+
 def draw_line_enable(screen, color, start_pos, end_pos, width, enable):
     if enable:
         pygame.draw.line(screen, color, start_pos, end_pos, width)
 
+
 def draw_line_helper(screen, color, start_pos, end_pos, width, enable):
-    list(map(draw_line_enable, screen, color, start_pos, end_pos, width, enable))
+    any(map(draw_line_enable, screen, color, start_pos, end_pos, width, enable))

@@ -81,11 +81,11 @@ while KEEP:
         error_array.pop(0)
 
     Screen.fill([0, 0, 0])
-    Net.draw(Screen, 0, 0, WIDTH / 4, HEIGHT - 200 , 10)
+    Net.update(Screen, 0, 0, WIDTH / 4, HEIGHT - 200, 10)
+    Net.draw()
     pygame.draw.line(Screen, [0, 0, 0], [0, HEIGHT - 200], [WIDTH, HEIGHT - 200])
     pygame.draw.line(Screen, [255, 255, 255], [0, HEIGHT - 100], [WIDTH, HEIGHT - 100])
     for i in range(len(error_array)):
-
         pygame.draw.circle(Screen, [255, 0, 0],
                            [int(10 + (WIDTH - 10) * (len(error_array) - i) / len(error_array)), error_array[i]], 5)
     pygame.display.flip()
