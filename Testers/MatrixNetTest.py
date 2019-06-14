@@ -72,6 +72,7 @@ Net.set_in(Input)
 found = False
 delay = 0
 error_array = []
+Net.update(Screen, 0, 0, WIDTH, HEIGHT - 200, 10)
 while KEEP:
     pygame.time.delay(delay)
 
@@ -81,7 +82,6 @@ while KEEP:
         error_array.pop(0)
 
     Screen.fill([0, 0, 0])
-    Net.update(Screen, 0, 0, WIDTH / 4, HEIGHT - 200, 10)
     Net.draw()
     pygame.draw.line(Screen, [0, 0, 0], [0, HEIGHT - 200], [WIDTH, HEIGHT - 200])
     pygame.draw.line(Screen, [255, 255, 255], [0, HEIGHT - 100], [WIDTH, HEIGHT - 100])

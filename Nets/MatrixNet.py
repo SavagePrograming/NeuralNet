@@ -133,15 +133,13 @@ class MatrixNet(Net):
         self.line_screen = [[[self.screen] * len(self.weight_array[x_][y_])
                              for y_ in range(len(self.nodes_value_array[x_]))]
                             for x_ in range(len(self.nodes_value_array))]
-
-        self.line_screen = [[[self.screen] * len(self.weight_array[x_][y_])
-                             for y_ in range(len(self.nodes_value_array[x_]))]
-                            for x_ in range(len(self.nodes_value_array))]
         self.line_scale = [[[1] * len(self.weight_array[x_][y_])
                             for y_ in range(len(self.nodes_value_array[x_]))]
                            for x_ in range(len(self.nodes_value_array))]
+
         self.line_color_formulas = [color_formula_line_helper] * len(self.weight_array)
         self.line_draw_formulas = [draw_line_helper] * len(self.weight_array)
+
         self.line_location_start = [[[[self.x + self.scale_dot + (x_ + 1) * self.scale_x,
                                        self.y + self.scale_dot + y_ * self.scale_y]] * len(self.weight_array[x_][y_])
                                      for y_ in range(len(self.nodes_value_array[x_]))]
