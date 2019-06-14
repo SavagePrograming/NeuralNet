@@ -48,7 +48,7 @@ def relu_color_formula(x):
     return (int(x * 255.) if x * 255.0 <= 255.0 else 255.0) if x > 0.0 else 0.0
 
 
-Net = MatrixNet.MatrixNet(DIMEN, [1.0, 1.0])
+Net = MatrixNet.MatrixNet(DIMEN, [1.0, -1.0])
 
 pygame.init()
 Screen = pygame.display.set_mode([WIDTH, HEIGHT])

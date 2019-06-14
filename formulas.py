@@ -35,8 +35,12 @@ def color_formula(x):
     return [0, int(x * 255.), 0]
 
 
-def color_formula_helper(formula, x):
-    return list(map(formula, x))
+def map_helper(formula, *args):
+    return list(map(formula, *args))
+
+
+def map_helper_clean(formula, *args):
+    return any(map(formula, *args))
 
 
 def color_formula_line(x):
@@ -56,9 +60,29 @@ def draw_circle_helper(screen_range, color_range, in_range_loc, radius_range):
 
 
 def draw_line_enable(screen, color, start_pos, end_pos, width, enable):
+    # print("=============================")
+    # print(screen)
+    # print(color)
+    # print(start_pos)
+    # print(end_pos)
+    # print(width)
+    # print(enable)
     if enable:
         pygame.draw.line(screen, color, start_pos, end_pos, width)
 
 
 def draw_line_helper(screen, color, start_pos, end_pos, width, enable):
+    # print("++++++++++++++++++++++++")
+    # print(dim(screen))
+    # print(dim(color))
+    # print(dim(start_pos))
+    # print(dim(end_pos))
+    # print(dim(width))
+    # print(dim(enable))
     any(map(draw_line_enable, screen, color, start_pos, end_pos, width, enable))
+
+
+def dim(a):
+    if not type(a) == list:
+        return []
+    return [len(a)] + dim(a[0])
