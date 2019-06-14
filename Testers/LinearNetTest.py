@@ -35,9 +35,9 @@ Net.update(screen=Screen,
            scale_dot=DOT_SIZE)
 KEEP = True
 States = []
-for i in range(0, NUMBER_OF_STATES):
+for i in range(NUMBER_OF_STATES):
     State = []
-    for i in range(0, STATE_SIZE):
+    for i in range(STATE_SIZE):
         State.append(random.choice([1, 0]))
     States.append(State)
 
@@ -74,9 +74,9 @@ while KEEP:
             if event.key == pygame.K_0:
                 NUMBER_OF_STATES = 20
                 States = []
-                for i in range(0, NUMBER_OF_STATES):
+                for i in range(NUMBER_OF_STATES):
                     State = []
-                    for i in range(0, STATE_SIZE):
+                    for i in range(STATE_SIZE):
                         State.append(random.choice([1, 0]))
                     States.append(State)
             if event.key == pygame.K_s:

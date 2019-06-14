@@ -19,7 +19,7 @@ def numtobits(num, bits):
 
 def bitstonum(bits):
     num = 0
-    for i in range(0, len(bits)):
+    for i in range(len(bits)):
         num += (2 ** i) * bits[i]
     return num
 
@@ -36,7 +36,7 @@ class AdditionSimulation(Simulation):
         self.count = 0
 
         self.states = []
-        for i in range(0, 2 ** 6):
+        for i in range(2 ** 6):
             self.states.append(numtobits(i, 6))
 
     def restart(self):

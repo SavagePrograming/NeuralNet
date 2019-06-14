@@ -26,10 +26,10 @@ class MatrixNet(Net):
             node_array = []
             weight_array = []
 
-            for ii in range(0, dimensions[i]):
+            for ii in range(dimensions[i]):
                 node_array.append([0])
                 weight_array.append([])
-                for iii in range(0, dimensions[i - 1] + 1):
+                for iii in range(dimensions[i - 1] + 1):
                     weight_array[ii].append(random.random() * (weight_range[1] - weight_range[0]) + weight_range[0])
 
             self.weight_array.append(numpy.array(weight_array))
@@ -37,7 +37,7 @@ class MatrixNet(Net):
 
     def set_in(self, array: List[int]):
         if len(array) == len(self.input_array):
-            for i in range(0, len(array)):
+            for i in range(len(array)):
                 if array[i] is not None:
                     self.input_array[i][0] = array[i]
 
@@ -111,7 +111,7 @@ class MatrixNet(Net):
 
         self.layers_color_formulas = [self.color_formula] * len(self.nodes_value_array)
         self.layers_screen = [[self.screen] * len(self.nodes_value_array[i])
-                              for i in range(0, len(self.nodes_value_array))]
+                              for i in range(len(self.nodes_value_array))]
         self.layers_scale = [[self.scale_dot] * len(self.nodes_value_array[i]) for i in
                              range(len(self.nodes_value_array))]
 
@@ -143,27 +143,19 @@ class MatrixNet(Net):
         self.line_color_formulas = [color_formula_line_helper] * len(self.weight_array)
         self.line_draw_formulas = [draw_line_helper] * len(self.weight_array)
         self.line_location_start = [[[[self.x + self.scale_dot + (x_ + 1) * self.scale_x,
-                                       self.y + self.scale_dot + y_ * self.scale_y] for y2 in
-                                      range(0, len(self.weight_array[x_][y_]))] for y_ in
-                                     range(0, len(self.nodes_value_array[x_]))] for x_ in
-                                    range(0, len(self.nodes_value_array))]
-        self.line_location_start = [[[[self.x + self.scale_dot + (x_ + 1) * self.scale_x,
-                                       self.y + self.scale_dot + y_ * self.scale_y] for y2 in
-                                      range(0, len(self.weight_array[x_][y_]))] for y_ in
-                                     range(0, len(self.nodes_value_array[x_]))] for x_ in
-                                    range(0, len(self.nodes_value_array))]
+                                       self.y + self.scale_dot + y_ * self.scale_y]] * len(self.weight_array[x_][y_])
+                                     for y_ in range(len(self.nodes_value_array[x_]))]
+                                    for x_ in range(len(self.nodes_value_array))]
         self.line_location_end = [[[[self.x + self.scale_dot + x_ * self.scale_x,
                                      self.y + self.scale_dot + y2 * self.scale_y] for y2 in
-                                    range(0, len(self.weight_array[x_][y_]))] for y_ in
-                                   range(0, len(self.nodes_value_array[x_]))] for x_ in
-                                  range(0, len(self.nodes_value_array))]
+                                    range(len(self.weight_array[x_][y_]))] for y_ in
+                                   range(len(self.nodes_value_array[x_]))] for x_ in
+                                  range(len(self.nodes_value_array))]
 
     def update_colors(self):
         self.in_colors = list(map(self.color_formula, self.input_array))
         self.layers_colors = list(map(map_helper, self.layers_color_formulas, self.nodes_value_array))
         self.line_colors = list(map(map_helper, self.line_color_formulas, self.weight_array))
-        # print(self.line_colors)
-        pass
 
     def draw(self):
         self.update_colors()
@@ -171,13 +163,3 @@ class MatrixNet(Net):
         any(map(draw_circle_helper, self.layers_screen, self.layers_colors, self.layers_loc, self.layers_scale))
         any(map(map_helper_clean, self.line_draw_formulas, self.line_screen, self.line_colors, self.line_location_start,
                 self.line_location_end, self.line_scale, self.line_scale))
-# for x_ in range(0, len(self.nodes_value_array)):
-#     for y_ in range(0, len(self.nodes_value_array[x_])):
-#         for y2 in range(0, len(self.weight_array[x_][y_])):
-#             pygame.draw.line(self.screen,
-#                              [255. - 255. * self.activation_function(self.weight_array[x_][y_][y2]), 125
-#                                  , 255. * self.activation_function(self.weight_array[x_][y_][y2])],
-#                              [self.x + self.scale_dot + (x_ + 1) * self.scale_x,
-#                               self.y + self.scale_dot + y_ * self.scale_y],
-#                              [self.x + self.scale_dot + x_ * self.scale_x,
-#                               self.y + self.scale_dot + y2 * self.scale_y])

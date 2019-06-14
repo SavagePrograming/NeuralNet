@@ -21,7 +21,7 @@ def numtobits(num, bits):
 
 def bitstonum(bits):
     num = 0
-    for i in range(0, len(bits)):
+    for i in range(len(bits)):
         num += (2 ** i) * bits[i]
     return num
 
@@ -57,9 +57,9 @@ Screen.fill([0, 0, 100])
 
 KEEP = True
 States = []
-for i in range(0, NUMBER_OF_STATES):
+for i in range(NUMBER_OF_STATES):
     State = []
-    for i in range(0, STATE_SIZE):
+    for i in range(STATE_SIZE):
         State.append(random.choice([1, 0]))
     States.append(State)
 States = [[0.0, 1.0],
@@ -96,9 +96,9 @@ while KEEP:
             if event.key == pygame.K_0:
                 NUMBER_OF_STATES = 20
                 States = []
-                for i in range(0, NUMBER_OF_STATES):
+                for i in range(NUMBER_OF_STATES):
                     State = []
-                    for i in range(0, STATE_SIZE):
+                    for i in range(STATE_SIZE):
                         State.append(random.choice([1, 0]))
                     States.append(State)
 

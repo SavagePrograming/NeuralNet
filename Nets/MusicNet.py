@@ -18,7 +18,7 @@ def drawPoint(x, y, scalex, scaley, distance):
 MAX = 1
 KEEP = True
 States = [[1,1,1,1],[1,1,0,0], [0,0,0,0]]
-# for i in range(0, NUMBER_OF_STATES):
+# for i in range(NUMBER_OF_STATES):
 #     States.append([random.choice([1, 0]), random.choice([1,0]), random.choice([1,0]), random.choice([1,0])])
 StatesIndex = 0
 Input = States[StatesIndex]
@@ -35,7 +35,7 @@ while KEEP:
     if Points:
         d = distance_formula(Net.get_out(), numpy.reshape(numpy.array(Input), (4,1)))
         MAX = max(MAX, max(Points))
-        map(drawPoint, range(0, len(Points)), Points, [400. / len(Points)] * len(Points),
+        map(drawPoint, range(len(Points)), Points, [400. / len(Points)] * len(Points),
             [200. / float(MAX)] * len(Points), [d] * len(Points))
 
     pygame.display.flip()
