@@ -6,7 +6,7 @@ import numpy
 from Nets.LinearNet import LinearNet
 from Nets.Net import Net
 from SupportClasses.GeneticsPackage import GeneticsPackage
-from formulas import sigmoid, sigmoid_der, color_formula
+from formulas import sigmoid, sigmoid_der, color_formula, discrete_tests
 
 # (innovation_number, start_node, end_node, weight, enabled)
 INNOVATION_INDEX = 0
@@ -112,6 +112,11 @@ class NeatNet(LinearNet):
                 self.random_weight(index, new_genes)
             elif random.random() < self.mutability_toggle:
                 self.toggle_connection(index, new_genes)
+
+        for i in range(discrete_tests((len(nodes) - self.in_dem) * (len(nodes) - self.in_dem), self.mutability_connections)):
+            start = random.choice(nodes[self.out_dem:])
+            end = random.choice(nodes[:self.out_dem] + nodes[self.out_dem + self.in_dem:])
+            self.add_connection_random(start, end, new_genes)
 
         new_net = NeatNet(
             self.in_dem,

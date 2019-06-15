@@ -76,3 +76,10 @@ def dim(a: list):
     if not type(a) == list:
         return []
     return [len(a)] + dim(a[0])
+
+
+def test_one(prob):
+    return 1 if random.random() < prob else 0
+
+def discrete_tests(size, prob):
+    return sum(map(test_one, [prob] * size))
