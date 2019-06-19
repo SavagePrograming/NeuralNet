@@ -283,3 +283,22 @@ class NeatNet(LinearNet):
                 disjoint_diff += 1
                 index_net += 1
         excess_diff += len(self.connection_genes) - index_self + len(net.connection_genes) - index_net
+    def save(self) -> str:
+        weight_save = encode_list(self.weights, str, 0)
+        enable_save = encode_list(self.enabled_weights, str, 0)
+        save_string = "%d|%d|%d|%s|%s" % (self.in_dem - 1, self.out_dem, self.middle_dem, weight_save, enable_save)
+        return save_string
+
+    def load(self, save):
+        save = save.split("|")
+        in_dem = int(save[0])
+        out_dem = int(save[1])
+         mutability_weights: float = float(save[2])
+         mutability_connections: float = float(save[3])
+         mutability_nodes: float =float(save[4])
+         mutability_reset: float = float(save[5])
+         mutability_shift: float = float(save[6])
+         mutability_toggle: float = float(save[7])
+
+
+        self.__init__(in_dem, out_dem, weights=weight_save, enabled_weights=enable_save)
