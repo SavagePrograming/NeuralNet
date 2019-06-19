@@ -161,3 +161,22 @@ class MatrixNet(Net):
         any(map(draw_circle_helper, self.layers_screen, self.layers_colors, self.layers_loc, self.layers_scale))
         any(map(map_helper_clean, self.line_draw_formulas, self.line_screen, self.line_colors, self.line_location_start,
                 self.line_location_end, self.line_scale, self.line_scale))
+
+    def save(self) -> str:
+        dim_save = ",".join(map(str, self.dimensions))
+        weight_save = ",".join([";".join([":".join(map(str, node)) for node in row]) for row in self.weight_array])
+        save_string = "%s|%s" % (dim_save, weight_save)
+        return save_string
+
+    def load(self, save):
+        save = save.split("|")
+        dim_save = save[0]
+        dim_save = list(map(int, dim_save.split(",")))
+        weight_save = save[1]
+        weight_save = [numpy.array([list(map(float, node.split(":"))) for node in row.split(";")]) for row in
+                       weight_save.split(",")]
+
+        self.__init__(dim_save, (0.0, 0.0), activation=self.activation_function,
+                      activation_der=self.activation_derivative,
+                      color_formula_param=self.color_formula)
+        self.weight_array = weight_save

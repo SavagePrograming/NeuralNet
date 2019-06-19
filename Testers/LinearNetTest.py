@@ -7,7 +7,7 @@ WIDTH = 1000
 HEIGHT = 800
 ERROR_SIZE = 500
 DOT_SIZE = 10
-DIMEN = [STATE_SIZE, 0, 1]
+DIMEN = [STATE_SIZE, 2, 1]
 Ratio = 5.0
 
 
@@ -84,7 +84,7 @@ while KEEP:
                     delay = 500
                 else:
                     delay = 0
-
+    Net.load(Net.save())
     StatesIndex = (StatesIndex + 1) % NUMBER_OF_STATES
     Input = States[StatesIndex]
     Net.set_in(Input)

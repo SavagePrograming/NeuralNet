@@ -33,6 +33,14 @@ class Net:
         pass
 
     @abstractmethod
+    def save(self) -> str:
+        pass
+
+    @abstractmethod
+    def load(self, save):
+        pass
+
+    @abstractmethod
     def update(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, scale_dot: int = 5):
         pass
 

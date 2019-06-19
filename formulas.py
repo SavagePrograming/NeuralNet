@@ -81,5 +81,27 @@ def dim(a: list):
 def test_one(prob):
     return 1 if random.random() < prob else 0
 
+
+def is_list(l):
+    try:
+        l[0]
+        return True
+    except:
+        return False
+
+
+def to_bool(e):
+    return e == "True"
+
+
+def encode_list(LIST, encode, depth):
+    return "<l>" + ("<%d>" % (depth)).join(
+        [encode_list(e, encode, depth + 1) if is_list(e) else encode(e) for e in LIST])
+
+
+def decode_list(LIST, decode, depth):
+    return [decode_list(e, decode, depth + 1) if "<l>" in e else decode(e) for e in LIST[3:].split("<%d>" % (depth))]
+
+
 def discrete_tests(size, prob):
     return sum(map(test_one, [prob] * size))

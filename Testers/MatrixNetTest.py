@@ -7,7 +7,7 @@ WIDTH = 1000
 HEIGHT = 800
 ERROR_SIZE = 500
 DIMEN = [STATE_SIZE, STATE_SIZE, 1]
-Ratio = .5
+Ratio = 1.0
 
 
 def numtobits(num, bits):
@@ -75,7 +75,6 @@ error_array = []
 Net.update(Screen, 0, 0, WIDTH, HEIGHT - 200, 10)
 while KEEP:
     pygame.time.delay(delay)
-
     Net.get_out()
     error_array.append(int((HEIGHT - 100) - Net.learn(Ratio, imitater(Input)) * 50.0))
     if len(error_array) > ERROR_SIZE:
@@ -233,6 +232,8 @@ while KEEP:
                 Net.set_in(Input)
                 found = False
 
+    # save = Net.save()
+    # Net.load(save)
     StatesIndex = (StatesIndex + 1) % NUMBER_OF_STATES
     Input = States[StatesIndex]
     Net.set_in(Input)
