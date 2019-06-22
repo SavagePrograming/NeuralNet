@@ -58,8 +58,8 @@ class EvolutionSpeciationDriver(Driver):
 
         self.row_count = int(math.sqrt(len(self.species)))
         self.row_size = math.ceil(len(self.species) / self.row_count)
-        print("-------------")
-        print("POP " + ",".join(map(str, self.population)))
+        # print("-------------")
+        # print("POP " + ",".join(map(str, self.population)))
         for i in range(self.row_count * self.row_size):
             if (i < len(self.species)):
                 self.species[i][0].update(screen,
@@ -69,9 +69,9 @@ class EvolutionSpeciationDriver(Driver):
                                           height // self.row_count,
                                           dot_size)
                 self.species[i][0].draw()
-                print(self.species[i][0])
-                print(self.species[i][0].input_nodes)
-                print(self.species[i][0].in_color_range)
+                # print(self.species[i][0])
+                # print(self.species[i][0].input_nodes)
+                # print(self.species[i][0].in_color_range)
 
     def repopulate(self, fitness: List[float]):
         survivors = int(self.population_size * self.survivor_ratio) - ceil(self.population_size * self.SISR)

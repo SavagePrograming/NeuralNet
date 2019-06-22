@@ -63,7 +63,7 @@ class EvolutionSimulation(Simulation):
         fitness = numpy.zeros((len(population)))
         for i in range(generation):
             fitness = numpy.add(fitness, self.run(population))
-            print(",".join(map(str, population)))
+            # print(",".join(map(str, population)))
             # screen.fill([0,0,100])
             driver_draw(screen, x, y, width, height, dot_size=dot_size)
             pygame.display.flip()
