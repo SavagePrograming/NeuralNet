@@ -61,7 +61,7 @@ while KEEP:
     pygame.draw.line(Screen, [255, 255, 255], [0, HEIGHT - 100], [WIDTH, HEIGHT - 100], 5)
     pygame.draw.line(Screen, [200, 200, 200], [0, HEIGHT - 150], [WIDTH, HEIGHT - 150], 5)
     pygame.draw.line(Screen, [0, 0, 0], [0, HEIGHT - 200], [WIDTH, HEIGHT - 200], 5)
-    print(error_array[-1][0])
+    # print(error_array[-1][0])
     for i in range(len(error_array)):
         pygame.draw.circle(Screen, [255, 0, 0],
                            [int(10 + (WIDTH - 10) * (i) / len(error_array)),

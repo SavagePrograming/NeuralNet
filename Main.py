@@ -7,20 +7,20 @@ from Simulations.EvolutionSimulation import EvolutionSimulation
 
 
 def IMITATOR(ar):
-    return ar
+    return [1.0] if (ar[0] == 1.0 )!= (ar[1] == 1.0) else [0.0]
 
 
 IN_SIZE = 2
-OUT_SIZE = 2
+OUT_SIZE = 1
 LAYERS = 0
 SIM = EvolutionSimulation(imitator=IMITATOR, in_dem=IN_SIZE, out_dem=OUT_SIZE, layers = LAYERS)
 
-POPULATION_SIZE = 300
-SURVIVOR_RATIO = .75
+POPULATION_SIZE = 1000
+SURVIVOR_RATIO = .5
 GENERATION_SIZE = 4
-SPECIES_THRESHOLD = 100.0
+SPECIES_THRESHOLD = 3.0
 SISR = .01
-BALANCING_FOCUS = 5.0
+BALANCING_FOCUS = 0.0
 MUTABILITY = 50.0
 EVOLVING_CLASS = NeatNet
 

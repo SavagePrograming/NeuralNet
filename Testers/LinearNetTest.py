@@ -56,7 +56,7 @@ while KEEP:
     error_array.append(int((HEIGHT - 100) - error * 50.0))
     if len(error_array) > ERROR_SIZE:
         error_array.pop(0)
-    print(error)
+    # print(error)
     Screen.fill([150, 150, 150])
     Net.draw()
 

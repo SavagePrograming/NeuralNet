@@ -1,12 +1,12 @@
 import random
-from typing import List, Tuple, Callable, Dict
+from typing import List, Tuple, Callable
 
 import numpy
 
 from Nets.LinearNet import LinearNet
 from Nets.Net import Net
 from SupportClasses.GeneticsPackage import GeneticsPackage
-from formulas import sigmoid, sigmoid_der, color_formula, discrete_tests, encode_gene, decode_gene
+from formulas import sigmoid, sigmoid_der, color_formula, encode_gene, decode_gene
 
 # (innovation_number, start_node, end_node, weight, enabled)
 INNOVATION_INDEX = 0
@@ -27,11 +27,11 @@ class NeatNet(LinearNet):
                  mutability_connections: float = 0.5,
                  mutability_nodes: float = 0.5,
                  mutability_reset: float = 0.5,
-                 mutability_shift: float = 0.5,
+                 mutability_change_weight: float = 0.5,
                  mutability_toggle: float = 0.5,
-                 excess_weight: float = 1.0,
+                 excess_weight: float = 5.0,
                  disjoint_weight: float = 1.0,
-                 weight_weight: float = 1.0,
+                 weight_weight: float = 0.1,
                  weight_range: Tuple[float, float] = None,
                  enabled_weights: List[List[bool]] = None,
                  activation: Callable = sigmoid,
@@ -48,7 +48,7 @@ class NeatNet(LinearNet):
         self.mutability_nodes = mutability_nodes
         self.mutability_connections = mutability_connections
         self.mutability_reset = mutability_reset
-        self.mutability_shift = mutability_shift
+        self.mutability_change_weight = mutability_change_weight
         self.mutability_toggle = mutability_toggle
         self.excess_weight: float = excess_weight
         self.disjoint_weight: float = disjoint_weight
@@ -58,20 +58,29 @@ class NeatNet(LinearNet):
         middle_dem: int = 0
         if connection_genes is not None:
             nodes = set()
+            middles = set()
             for connection_gene in self.connection_genes:
-                if connection_gene[1] >= in_dem:
-                    nodes.add(connection_gene[1])
+                nodes.add(connection_gene[1])
+                nodes.add(connection_gene[2])
 
-                if connection_gene[1] > 0:
-                    nodes.add(connection_gene[2])
+                if connection_gene[1] >= in_dem:
+                    middles.add(connection_gene[1])
+
+                if connection_gene[2] > 0:
+                    middles.add(connection_gene[2])
+
+            list(map(nodes.add,  range(in_dem)))
+            list(map(nodes.add,  range(-out_dem, 0)))
             self.nodes = list(nodes)
-            middle_dem = len(self.nodes)
+            self.nodes.sort()
+            # print(self.nodes)
+            middle_dem = len(middles)
             enabled_weights = numpy.zeros((in_dem + middle_dem, middle_dem + out_dem), dtype=bool)
             weights = numpy.zeros((in_dem + middle_dem, middle_dem + out_dem))
             for innovation_number, start_node, end_node, weight, enabled in self.connection_genes:
                 if enabled:
-                    start = start_node if start_node < in_dem else self.nodes.index(start_node)
-                    end = end_node if end_node < 0 else self.nodes.index(start_node)
+                    start = self.nodes.index(start_node) - out_dem
+                    end = end_node if end_node < 0 else self.nodes.index(end_node) - (in_dem + out_dem)
                     enabled_weights[start][end] = True
                     weights[start][end] = weight
 
@@ -93,15 +102,15 @@ class NeatNet(LinearNet):
         )
 
     def compatible(self, net: Net):
-        if not (self.in_dem == net.in_dem and self.out_dem == net.out_dem and isinstance(net, NeatNet)):
-            print(self.in_dem == net.in_dem)
-            print(self.out_dem == net.out_dem)
-            print( isinstance(net, NeatNet))
+        # if not (self.in_dem == net.in_dem and self.out_dem == net.out_dem and isinstance(net, NeatNet)):
+        # print(self.in_dem == net.in_dem)
+        # print(self.out_dem == net.out_dem)
+        # print( isinstance(net, NeatNet))
 
         return self.in_dem == net.in_dem and self.out_dem == net.out_dem and isinstance(net, NeatNet)
 
     def breed(self, net: Net):
-        assert self.compatible(net)
+        assert self.compatible(net), isinstance(net, NeatNet)
         new_genes = self.cross_over(net)
         nodes = set()
         for n in range(self.in_dem):
@@ -118,10 +127,71 @@ class NeatNet(LinearNet):
         nodes.sort()
 
         for index in range(len(new_genes)):
-            if random.random() < self.mutability_shift:
-                self.shift_weight(index, new_genes)
-            elif random.random() < self.mutability_reset:
-                self.random_weight(index, new_genes)
+            if random.random() < self.mutability_change_weight:
+                if random.random() < self.mutability_reset:
+                    self.random_weight(index, new_genes)
+                else:
+                    self.shift_weight(index, new_genes)
+            elif random.random() < self.mutability_toggle:
+                self.toggle_connection(index, new_genes)
+        # available = list(range(len(new_genes)))
+        # while random.random() < self.mutability_nodes and available:
+        #     gene = random.choice(available)
+        #     available.remove(gene)
+        #     self.add_node(gene, new_genes)
+
+        available = random.shuffle(list(range(len(new_genes))))
+        while random.random() < self.mutability_nodes and available:
+            gene = available.pop(0)
+            self.add_node(gene, new_genes)
+
+        pairs = [(gene[START_INDEX], gene[END_INDEX]) for gene in new_genes]
+        # print(pairs)
+        pair_choices = [(start, end) for end in nodes[:self.out_dem] + nodes[self.in_dem + self.out_dem:]
+                        for start in nodes[self.out_dem:]]
+        # print(pair_choices)
+        list(map(pair_choices.remove, pairs))
+        random.shuffle(pair_choices)
+        # print(pair_choices)
+        while random.random() < self.mutability_connections and pair_choices:
+            # print("NEW!")
+            pair = pair_choices.pop(0)
+            self.add_connection_random(pair[0], pair[1], new_genes)
+
+        new_net = NeatNet(
+            self.in_dem - 1,
+            self.out_dem,
+            new_genes,
+            self.genetics_package,
+            self.mutability_weights,
+            self.mutability_connections,
+            self.mutability_nodes,
+            self.mutability_reset,
+            self.mutability_change_weight,
+            self.mutability_toggle,
+            activation=self.activation_function,
+            activation_der=self.activation_derivative
+        )
+        return new_net
+
+    def replicate(self):
+        new_genes = self.connection_genes
+        nodes = set()
+        for connection_gene in self.connection_genes:
+            if connection_gene[1] >= self.in_dem:
+                nodes.add(new_genes[1])
+
+            if connection_gene[1] > 0:
+                nodes.add(new_genes[2])
+        nodes = list(nodes)
+        nodes.sort()
+
+        for index in range(len(new_genes)):
+            if random.random() < self.mutability_change_weight:
+                if random.random() < self.mutability_reset:
+                    self.random_weight(index, new_genes)
+                else:
+                    self.shift_weight(index, new_genes)
             elif random.random() < self.mutability_toggle:
                 self.toggle_connection(index, new_genes)
         available = list(range(len(new_genes)))
@@ -153,62 +223,7 @@ class NeatNet(LinearNet):
             self.mutability_connections,
             self.mutability_nodes,
             self.mutability_reset,
-            self.mutability_shift,
-            self.mutability_toggle,
-            activation=self.activation_function,
-            activation_der=self.activation_derivative
-        )
-        return new_net
-
-    def replicate(self):
-        new_genes = self.connection_genes
-        nodes = set()
-        for connection_gene in self.connection_genes:
-            if connection_gene[1] >= self.in_dem:
-                nodes.add(new_genes[1])
-
-            if connection_gene[1] > 0:
-                nodes.add(new_genes[2])
-        nodes = list(nodes)
-        nodes.sort()
-
-        for index in range(len(new_genes)):
-            if random.random() < self.mutability_shift:
-                self.shift_weight(index, new_genes)
-            elif random.random() < self.mutability_reset:
-                self.random_weight(index, new_genes)
-            elif random.random() < self.mutability_toggle:
-                self.toggle_connection(index, new_genes)
-        available = list(range(len(new_genes)))
-        while random.random() < self.mutability_nodes and available:
-            gene = random.choice(available)
-            available.remove(gene)
-            self.add_node(gene, new_genes)
-
-        available = random.shuffle(list(range(len(new_genes))))
-        while random.random() < self.mutability_nodes and available:
-            gene = available.pop(0)
-            self.add_node(gene, new_genes)
-
-        pairs = [(gene[START_INDEX], gene[END_INDEX]) for gene in new_genes]
-        pair_choices = [[(start, end) for end in nodes[:self.out_dem] + nodes[self.in_dem + self.out_dem:]]
-                        for start in nodes[self.out_dem:]]
-        list(map(pair_choices.remove, pairs))
-        pair_choices = random.shuffle(pair_choices)
-        while random.random() < self.mutability_connections and pair_choices:
-            pair = pair_choices.pop(0)
-            self.add_connection_random(pair[0], pair[1], new_genes)
-
-        new_net = NeatNet(
-            self.in_dem,
-            self.out_dem,
-            new_genes,
-            self.genetics_package,
-            self.mutability_weights,
-            self.mutability_connections,
-            self.mutability_nodes,
-            self.mutability_reset,
-            self.mutability_shift,
+            self.mutability_change_weight,
             self.mutability_toggle,
             activation=self.activation_function,
             activation_der=self.activation_derivative
@@ -245,9 +260,9 @@ class NeatNet(LinearNet):
         old_gene = genes[gene_index]
         old_gene = old_gene[0], old_gene[1], old_gene[2], old_gene[3], False
         genes[gene_index] = old_gene
-        node_innovation_number = self.genetics_package.get_node_innovation(old_gene[INNOVATION_INDEX])
-        self.add_connection_weight(old_gene[START_INDEX], node_innovation_number, 1.0)
-        self.add_connection_weight(node_innovation_number, old_gene[END_INDEX], old_gene[WEIGHT_INDEX])
+        node_innovation_number = self.genetics_package.add_node(old_gene[INNOVATION_INDEX])
+        self.add_connection_weight(old_gene[START_INDEX], node_innovation_number, 1.0, genes)
+        self.add_connection_weight(node_innovation_number, old_gene[END_INDEX], old_gene[WEIGHT_INDEX], genes)
 
     def add_connection_random(self, start_node, end_node, genes: List[Tuple[int, int, int, float, bool]]):
         innovation_number = self.genetics_package.add_connection(start_node, end_node)
@@ -310,7 +325,7 @@ class NeatNet(LinearNet):
                                                       self.mutability_connections,
                                                       self.mutability_nodes,
                                                       self.mutability_reset,
-                                                      self.mutability_shift,
+                                                      self.mutability_change_weight,
                                                       self.mutability_toggle,
                                                       genes_string)
         return save_string
@@ -323,7 +338,7 @@ class NeatNet(LinearNet):
         mutability_connections: float = float(save[3])
         mutability_nodes: float = float(save[4])
         mutability_reset: float = float(save[5])
-        mutability_shift: float = float(save[6])
+        mutability_change_weight: float = float(save[6])
         mutability_toggle: float = float(save[7])
         gene_string = save[8]
         genes = list(map(decode_gene, gene_string.split(",")))
@@ -331,6 +346,9 @@ class NeatNet(LinearNet):
                       mutability_connections=mutability_connections,
                       mutability_nodes=mutability_nodes,
                       mutability_toggle=mutability_toggle,
-                      mutability_shift=mutability_shift,
+                      mutability_change_weight=mutability_change_weight,
                       mutability_reset=mutability_reset,
                       mutability_weights=mutability_weights)
+
+    def __str__(self):
+        return "(<%d, %d> [%s])" % (self.in_dem, self.out_dem, ",".join(map(str, self.connection_genes)))

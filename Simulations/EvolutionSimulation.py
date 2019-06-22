@@ -33,6 +33,7 @@ class EvolutionSimulation(Simulation):
 
         for net in population:
             net.set_in(input_state)
+            # print(net)
             fitness.append(
                 numpy.linalg.norm(numpy.subtract(1.0, abs(numpy.subtract(net.get_out(), self.imitator(input_state))))))
 
@@ -62,9 +63,11 @@ class EvolutionSimulation(Simulation):
         fitness = numpy.zeros((len(population)))
         for i in range(generation):
             fitness = numpy.add(fitness, self.run(population))
-
+            print(",".join(map(str, population)))
+            # screen.fill([0,0,100])
             driver_draw(screen, x, y, width, height, dot_size=dot_size)
             pygame.display.flip()
+            pygame.time.delay(100)
 
         fitness = numpy.divide(fitness, generation)
         return fitness

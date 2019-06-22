@@ -32,11 +32,16 @@ class NeatSpeciationDriver(EvolutionSpeciationDriver):
                  species_independent_survivor_ratio: float,
                  balancing_focus: float,
                  mutability_weights=0.5,
-                 mutability_connections=0.5,
-                 mutability_nodes=0.5,
-                 mutability_reset=0.5,
-                 mutability_shift=0.5,
-                 mutability_toggle=0.5):
+                 mutability_connections=0.05,
+                 mutability_nodes=0.03,
+                 mutability_reset=0.1,
+                 mutability_change_weight=0.8,
+                 mutability_toggle=0.5,
+                 excess_weight: float = 1.0,
+                 disjoint_weight: float = 1.0,
+                 weight_weight: float = 0.4,
+                 inter_species_breeding_rate=0.001,
+                 asexual_breading_rate=.25):
 
         self.in_dem: int = simulation.in_dem
         self.out_dem: int = simulation.in_dem
@@ -57,6 +62,8 @@ class NeatSpeciationDriver(EvolutionSpeciationDriver):
         self.balance_focus: float = balancing_focus
         self.SISR: float = species_independent_survivor_ratio
         self.survivor_ratio: float = survivor_ratio
+        self.inter_species_breeding_rate = inter_species_breeding_rate
+        self.asexual_breading_rate = asexual_breading_rate
         self.species: List[List[NeatNet]] = []
 
         self.gene_pool = GeneticsPackage(self.in_dem, self.out_dem)
@@ -68,8 +75,12 @@ class NeatSpeciationDriver(EvolutionSpeciationDriver):
                                                        mutability_connections=mutability_connections,
                                                        mutability_nodes=mutability_nodes,
                                                        mutability_reset=mutability_reset,
-                                                       mutability_shift=mutability_shift,
-                                                       mutability_toggle=mutability_toggle))
+                                                       mutability_change_weight=mutability_change_weight,
+                                                       mutability_toggle=mutability_toggle,
+                                                       weight_weight=weight_weight,
+                                                       disjoint_weight=disjoint_weight,
+                                                       excess_weight=excess_weight))
 
         for child in self.population:
             self.add_to_specie(child)
+        # print(len(self.species))

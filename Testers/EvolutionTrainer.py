@@ -40,7 +40,7 @@ class EvolutionTrainer():
                 for i in range(1, self.error_bars):
                     pygame.draw.line(self.screen, [200, 200, 200], [0, self.height - i * (200 / self.error_bars)], [self.width, self.height - i * (200 / self.error_bars)], 5)
                 pygame.draw.line(self.screen, [0, 0, 0], [0, self.height - 200], [self.width, self.height - 200], 5)
-                print(self.error_array[-1][0])
+                # print(self.error_array[-1][0])
                 for i in range(len(self.error_array)):
                     pygame.draw.circle(self.screen, [255, 0, 0],
                                        [int(10 + (self.width - 10) * (i) / len(self.error_array)),

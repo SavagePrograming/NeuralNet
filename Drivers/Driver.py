@@ -63,6 +63,7 @@ class Driver:
                                           height // self.row_count,
                                           dot_size)
                 self.population[i].draw()
+                # print(self.population[i])
 
     def run_visual(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, dot_size: int = 10):
         self.simulation.restart()
