@@ -32,7 +32,7 @@ Driver = NeatSpeciationDriver(population_size=POPULATION_SIZE,
                                    species_independent_survivor_ratio=SISR,
                                    balancing_focus=BALANCING_FOCUS)
 
-SIZE = [500,500]
+SIZE = [500, 500]
 VERBOSITY = 2
 ERROR_SIZE = 100
 Trainer = EvolutionTrainer(driver=Driver,

@@ -4,7 +4,7 @@ import numpy, math, pygame
 
 from Nets.Net import Net
 from formulas import distance_formula, sigmoid, sigmoid_der, randomize, color_formula, color_formula_line, \
-    color_formula_line_helper, draw_circle, draw_line_helper
+    color_formula_line_helper, draw_circle, draw_line_helper, encode_list, decode_list, to_bool
 
 
 class LinearNet(Net):
@@ -173,3 +173,20 @@ class LinearNet(Net):
 
         error = distance_formula(target, self.node_values[:, self.middle_dem:])
         return error
+
+    def save(self) -> str:
+        weight_save = encode_list(self.weights, str, 0)
+        enable_save = encode_list(self.enabled_weights, str, 0)
+        save_string = "%d|%d|%d|%s|%s" % (self.in_dem - 1, self.out_dem, self.middle_dem, weight_save, enable_save)
+        return save_string
+
+    def load(self, save):
+        save = save.split("|")
+        in_dem = int(save[0])
+        out_dem = int(save[1])
+        middle_dem = int(save[2])
+
+        weight_save = numpy.array(decode_list(save[3], float, 0))
+        enable_save = decode_list(save[4], to_bool, 0)
+
+        self.__init__(in_dem, out_dem, middle_dem, weights=weight_save, enabled_weights=enable_save)

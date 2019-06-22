@@ -1,6 +1,7 @@
 from typing import List, Dict
 
 from SupportClasses.InvalidInnovationNumber import InvalidInnovationNumber
+from formulas import encode_list, decode_list
 
 
 class GeneticsPackage:
@@ -62,3 +63,23 @@ class GeneticsPackage:
         if connection_innovation_number in self.node_genes:
             return self.node_genes[connection_innovation_number]
         raise InvalidInnovationNumber(connection_innovation_number, False)
+
+    def save(self):
+        connection_genes_string = encode_list(self.connection_genes, str, 0)
+        node_genes_string = ",".join(["%d:%d" % (key, value) for key, value in self.node_genes.items()])
+        return "%d|%d|%d|%d|%s|%s" % (
+            self.in_dem, self.out_dem, self.node_innovation_number, self.connection_innovation_number,
+            connection_genes_string, node_genes_string)
+
+    def load(self, save):
+        save = save.split("|")
+        self.in_dem = int(save[0])
+        self.out_dem = int(save[1])
+        self.node_innovation_number = int(save[2])
+        self.connection_innovation_number = int(save[3])
+        self.connection_genes = decode_list(save[4], int, 0)
+        self.node_genes = {}
+        for gene in save[5].split(','):
+            gene.split(":")
+            self.node_genes[int(gene[0])] = int(gene[1])
+
