@@ -105,3 +105,10 @@ def decode_list(LIST, decode, depth):
 
 def discrete_tests(size, prob):
     return sum(map(test_one, [prob] * size))
+
+def encode_gene(gene):
+    return ";".join(map(str,gene))
+
+def decode_gene(gene):
+    gene = gene.split(";")
+    return int(gene[0]), int(gene[1]), int(gene[2]), float(gene[3]), to_bool(gene[4])

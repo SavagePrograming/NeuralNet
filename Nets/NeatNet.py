@@ -6,7 +6,7 @@ import numpy
 from Nets.LinearNet import LinearNet
 from Nets.Net import Net
 from SupportClasses.GeneticsPackage import GeneticsPackage
-from formulas import sigmoid, sigmoid_der, color_formula, discrete_tests
+from formulas import sigmoid, sigmoid_der, color_formula, discrete_tests, encode_gene, decode_gene
 
 # (innovation_number, start_node, end_node, weight, enabled)
 INNOVATION_INDEX = 0
@@ -50,10 +50,10 @@ class NeatNet(LinearNet):
 
         self.nodes = []
         middle_dem: int = 0
-        if connection_genes:
+        if connection_genes is not None:
             nodes = set()
             for connection_gene in self.connection_genes:
-                if connection_gene[1] >= self.in_dem:
+                if connection_gene[1] >= in_dem:
                     nodes.add(connection_genes[1])
 
                 if connection_gene[1] > 0:
@@ -64,7 +64,7 @@ class NeatNet(LinearNet):
             weights = numpy.zeros((in_dem + middle_dem, middle_dem + out_dem))
             for innovation_number, start_node, end_node, weight, enabled in self.connection_genes:
                 if enabled:
-                    start = start_node if start_node < self.in_dem else self.nodes.index(start_node)
+                    start = start_node if start_node < in_dem else self.nodes.index(start_node)
                     end = end_node if end_node < 0 else self.nodes.index(start_node)
                     enabled_weights[start][end] = True
                     weights[start][end] = weight
@@ -90,7 +90,7 @@ class NeatNet(LinearNet):
     def compatible(self, net: Net):
         return self.in_dem == net.in_dem and self.out_dem == net.out_dem and isinstance(net, NeatNet)
 
-    def breed(self, net: NeatNet):
+    def breed(self, net: Net):
         assert self.compatible(net)
         new_genes = self.cross_over(net)
         nodes = set()
@@ -236,16 +236,16 @@ class NeatNet(LinearNet):
         self.add_connection_weight(node_innovation_number, old_gene[END_INDEX], old_gene[WEIGHT_INDEX])
 
     def add_connection_random(self, start_node, end_node, genes: List[Tuple[int, int, int, float, bool]]):
-        innovation_number = self.genetics_package.get_connection_innovation(start_node, end_node)
+        innovation_number = self.genetics_package.add_connection(start_node, end_node)
         if not any([gene[INNOVATION_INDEX] == innovation_number for gene in genes]):
             genes.append((innovation_number, start_node, end_node, random.random() * 4.0 - 2.0, True))
 
     def add_connection_weight(self, start_node, end_node, weight, genes: List[Tuple[int, int, int, float, bool]]):
-        innovation_number = self.genetics_package.get_connection_innovation(start_node, end_node)
+        innovation_number = self.genetics_package.add_connection(start_node, end_node)
         if not any([gene[INNOVATION_INDEX] == innovation_number for gene in genes]):
             genes.append((innovation_number, start_node, end_node, weight, True))
 
-    def cross_over(self, net: NeatNet) -> List[Tuple[int, int, int, float, bool]]:
+    def cross_over(self, net: Net) -> List[Tuple[int, int, int, float, bool]]:
         new_genes = []
         index_self = 0
         index_net = 0
@@ -262,7 +262,7 @@ class NeatNet(LinearNet):
         new_genes.extend(self.connection_genes[index_self:])
         return new_genes
 
-    def distance(self, net: NeatNet):
+    def distance(self, net: Net):
         assert self.compatible(net)
         weight_diff = 0.0
         disjoint_diff = 0
@@ -283,22 +283,36 @@ class NeatNet(LinearNet):
                 disjoint_diff += 1
                 index_net += 1
         excess_diff += len(self.connection_genes) - index_self + len(net.connection_genes) - index_net
+
     def save(self) -> str:
-        weight_save = encode_list(self.weights, str, 0)
-        enable_save = encode_list(self.enabled_weights, str, 0)
-        save_string = "%d|%d|%d|%s|%s" % (self.in_dem - 1, self.out_dem, self.middle_dem, weight_save, enable_save)
+        genes_string = ",".join(map(encode_gene, self.connection_genes))
+        save_string = "%d|%d|%f|%f|%f|%f|%f|%f|%s" % (self.in_dem - 1,
+                                                      self.out_dem,
+                                                      self.mutability_weights,
+                                                      self.mutability_connections,
+                                                      self.mutability_nodes,
+                                                      self.mutability_reset,
+                                                      self.mutability_shift,
+                                                      self.mutability_toggle,
+                                                      genes_string)
         return save_string
 
     def load(self, save):
         save = save.split("|")
         in_dem = int(save[0])
         out_dem = int(save[1])
-         mutability_weights: float = float(save[2])
-         mutability_connections: float = float(save[3])
-         mutability_nodes: float =float(save[4])
-         mutability_reset: float = float(save[5])
-         mutability_shift: float = float(save[6])
-         mutability_toggle: float = float(save[7])
-
-
-        self.__init__(in_dem, out_dem, weights=weight_save, enabled_weights=enable_save)
+        mutability_weights: float = float(save[2])
+        mutability_connections: float = float(save[3])
+        mutability_nodes: float = float(save[4])
+        mutability_reset: float = float(save[5])
+        mutability_shift: float = float(save[6])
+        mutability_toggle: float = float(save[7])
+        gene_string = save[8]
+        genes = list(map(decode_gene, gene_string.split(",")))
+        self.__init__(in_dem, out_dem, genes, self.genetics_package,
+                      mutability_connections=mutability_connections,
+                      mutability_nodes=mutability_nodes,
+                      mutability_toggle=mutability_toggle,
+                      mutability_shift=mutability_shift,
+                      mutability_reset=mutability_reset,
+                      mutability_weights=mutability_weights)

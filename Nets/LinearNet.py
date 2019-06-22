@@ -34,7 +34,7 @@ class LinearNet(Net):
             self.weights = randomize(numpy.zeros((self.in_dem + self.middle_dem, self.middle_dem + self.out_dem)))
             self.weights = numpy.add(weight_range[1], numpy.multiply(dif, self.weights))
 
-        if enabled_weights:
+        if enabled_weights is not None:
             self.enabled_weights: numpy.array = enabled_weights
         else:
             self.enabled_weights: numpy.array = numpy.array([
