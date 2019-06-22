@@ -8,6 +8,7 @@ from typing import ClassVar, List, Type
 from Nets import Net
 from Nets.EvolvingNet import EvolvingNet
 from Simulations import EvolutionSimulation
+N = Net.Net
 
 
 class Driver:
@@ -18,7 +19,7 @@ class Driver:
                  row_size: int,
                  row_count: int,
                  mutability: float = 0.5,
-                 evolving_class: Type[Net] = EvolvingNet):
+                 evolving_class: Type[N] = EvolvingNet):
         self.in_dem: int = simulation.in_dem
         self.out_dem: int = simulation.in_dem
         self.row_size: int = row_size

@@ -6,10 +6,12 @@ import math
 import numpy
 import pygame
 
-from Drivers.Driver import Driver
+import Drivers.Driver
 from Nets.Net import Net
 from Simulations.Simulation import Simulation
 from formulas import distance_formula
+
+D = Drivers.Driver.Driver
 
 
 class EvolutionSimulation(Simulation):
@@ -52,7 +54,7 @@ class EvolutionSimulation(Simulation):
     def run_generations_visual(self,
                                population: List[Type[Net]],
                                generation: int,
-                               driver: Type[Driver],
+                               driver: Type[D],
                                screen: pygame.Surface,
                                x: int,
                                y: int,

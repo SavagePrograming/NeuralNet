@@ -2,8 +2,8 @@ import os
 import random
 from abc import abstractmethod
 from typing import List, Type
-
-from Drivers import Driver
+from Drivers.Driver import Driver
+D = Driver
 from Nets.Net import Net
 import math
 import numpy
@@ -39,7 +39,7 @@ class Simulation:
     def run_generations_visual(self,
                                population: List[Type[Net]],
                                generation: int,
-                               driver: Type[Driver],
+                               driver: Type[D],
                                screen: pygame.Surface,
                                x: int,
                                y: int,

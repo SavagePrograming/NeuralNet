@@ -1,3 +1,4 @@
+from Nets.NeatNet import NeatNet
 from Testers.EvolutionTrainer import EvolutionTrainer
 from Nets.StaticEvolvingNet import StaticEvolvingNet
 from Drivers.EvolutionSpeciationDriver import EvolutionSpeciationDriver
@@ -11,7 +12,7 @@ def IMITATOR(ar):
 IN_SIZE = 2
 OUT_SIZE = 2
 LAYERS = 0
-SIM = EvolutionSimulation(imitator=IMITATOR, in_dem=IN_SIZE, out_dem=OUT_SIZE, layers = LAYERS)
+SIM = EvolutionSimulation(imitator=IMITATOR, in_dem=IN_SIZE, out_dem=OUT_SIZE, layers=LAYERS)
 
 POPULATION_SIZE = 300
 SURVIVOR_RATIO = .75
@@ -20,7 +21,7 @@ SPECIES_THRESHOLD = 100.0
 SISR = .01
 BALANCING_FOCUS = 0.0
 MUTABILITY = 50.0
-EVOLVING_CLASS = StaticEvolvingNet
+EVOLVING_CLASS = NeatNet
 
 Driver = EvolutionSpeciationDriver(population_size=POPULATION_SIZE,
                                    survivor_ratio=SURVIVOR_RATIO,
@@ -32,7 +33,7 @@ Driver = EvolutionSpeciationDriver(population_size=POPULATION_SIZE,
                                    mutability=MUTABILITY,
                                    evolving_class=EVOLVING_CLASS)
 
-SIZE = [500,500]
+SIZE = [500, 500]
 VERBOSITY = 2
 ERROR_SIZE = 100
 Trainer = EvolutionTrainer(driver=Driver,
