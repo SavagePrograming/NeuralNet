@@ -67,7 +67,6 @@ class EvolutionSimulation(Simulation):
             # screen.fill([0,0,100])
             driver_draw(screen, x, y, width, height, dot_size=dot_size)
             pygame.display.flip()
-            pygame.time.delay(100)
 
         fitness = numpy.divide(fitness, generation)
         return fitness

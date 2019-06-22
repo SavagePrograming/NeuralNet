@@ -67,7 +67,7 @@ class Driver:
 
     def run_visual(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, dot_size: int = 10):
         self.simulation.restart()
-
+        print("RUN " + ",".join(map(str, self.population)))
         fitness = self.simulation.run_generations_visual(self.population,
                                                          self.generation_size,
                                                          self.draw,

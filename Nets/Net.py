@@ -52,9 +52,6 @@ class Net:
     def draw(self):
         pass
 
-    def __eq__(self, other):
-        return self.score == other.score
-
     def __lt__(self, other):
         return self.score < other.score
 
