@@ -122,13 +122,13 @@ class LinearNet(Net):
         self.input_nodes = numpy.array(array, ndmin=2)
 
     def get_out(self):
-        print(self.weights.shape)
+        # print(self.weights.shape)
 
         self.weights = numpy.multiply(self.weights, self.enabled_weights)
         numpy.zeros((1, self.middle_dem + self.out_dem))
-        print(self.out_dem)
-        print(self.in_dem)
-        print(self.weights.shape)
+        # print(self.out_dem)
+        # print(self.in_dem)
+        # print(self.weights.shape)
         self.node_sum = numpy.dot(self.input_nodes, self.weights[:self.in_dem])
 
         for i in range(self.middle_dem):

@@ -59,18 +59,18 @@ class NeatNet(LinearNet):
         if connection_genes is not None:
             nodes = set()
             for connection_gene in self.connection_genes:
-                if connection_gene[1] >= self.in_dem:
-                    nodes.add(connection_genes[1])
+                if connection_gene[1] >= in_dem:
+                    nodes.add(connection_gene[1])
 
                 if connection_gene[1] > 0:
-                    nodes.add(connection_genes[2])
+                    nodes.add(connection_gene[2])
             self.nodes = list(nodes)
             middle_dem = len(self.nodes)
             enabled_weights = numpy.zeros((in_dem + middle_dem, middle_dem + out_dem), dtype=bool)
             weights = numpy.zeros((in_dem + middle_dem, middle_dem + out_dem))
             for innovation_number, start_node, end_node, weight, enabled in self.connection_genes:
                 if enabled:
-                    start = start_node if start_node < self.in_dem else self.nodes.index(start_node)
+                    start = start_node if start_node < in_dem else self.nodes.index(start_node)
                     end = end_node if end_node < 0 else self.nodes.index(start_node)
                     enabled_weights[start][end] = True
                     weights[start][end] = weight
@@ -93,6 +93,11 @@ class NeatNet(LinearNet):
         )
 
     def compatible(self, net: Net):
+        if not (self.in_dem == net.in_dem and self.out_dem == net.out_dem and isinstance(net, NeatNet)):
+            print(self.in_dem == net.in_dem)
+            print(self.out_dem == net.out_dem)
+            print( isinstance(net, NeatNet))
+
         return self.in_dem == net.in_dem and self.out_dem == net.out_dem and isinstance(net, NeatNet)
 
     def breed(self, net: Net):
@@ -128,7 +133,7 @@ class NeatNet(LinearNet):
             self.add_connection_random(start, end, new_genes)
 
         new_net = NeatNet(
-            self.in_dem,
+            self.in_dem - 1,
             self.out_dem,
             new_genes,
             self.genetics_package,

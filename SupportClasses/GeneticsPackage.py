@@ -16,7 +16,7 @@ class GeneticsPackage:
         self.out_dem: int = out_dem
 
     def add_connection(self, start_node: int, end_node: int) -> int:
-        if 0 < start_node < self.node_innovation_number:
+        if 0 <= start_node < self.node_innovation_number:
             if end_node < self.node_innovation_number and (max(start_node, self.in_dem - 1) < end_node or end_node < 0):
                 end_node = end_node if end_node < 0 else end_node - self.in_dem
                 if self.connection_genes[start_node][end_node] == 0:
@@ -45,7 +45,7 @@ class GeneticsPackage:
         raise InvalidInnovationNumber(connection_innovation_number, True)
 
     def get_connection_innovation(self, start_node: int, end_node: int) -> int:
-        if 0 < start_node < self.node_innovation_number:
+        if 0 <= start_node < self.node_innovation_number:
             if end_node < self.node_innovation_number and \
                     (max(start_node, self.in_dem - 1) < end_node or end_node < 0):
                 end_node = end_node if end_node < 0 else end_node - self.in_dem
