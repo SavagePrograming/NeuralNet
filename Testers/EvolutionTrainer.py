@@ -29,7 +29,7 @@ class EvolutionTrainer():
                 self.driver.draw(self.screen, 0, 0, self.width, self.height - 200, 10)
             else:
                 self.driver.run_visual(self.screen, 0, 0, self.width, self.height - 200, 2)
-            self.error_array.append((self.driver.Maximum, self.driver.Average, self.driver.Median, self.driver.Minimum))
+            self.error_array.append((self.driver.maximum, self.driver.average, self.driver.median, self.driver.minimum))
             if len(self.error_array) > self.error_length:
                 self.error_array.pop(0)
 

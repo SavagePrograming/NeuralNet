@@ -35,9 +35,9 @@ class StaticEvolvingNet(MatrixNet):
             self.weight_array = genetics_weights
 
     def compatible(self, net):
-        return self.in_dem == net.InDem and \
-               self.out_dem == net.OutDem and \
-               self.layers == net.Layers
+        return self.in_dem == net.in_dem and \
+               self.out_dem == net.in_dem and \
+               self.layers == net.layers
 
     def breed(self, net):
         assert self.compatible(net)
@@ -48,7 +48,7 @@ class StaticEvolvingNet(MatrixNet):
                 newWeights[i].append([])
                 for k in range(len(self.weight_array[i][j])):
                     newWeights[i][j].append(random.choice([self.weight_array[i][j][k],
-                                                           net.WeightArray[i][j][k]]))
+                                                           net.weight_array[i][j][k]]))
             newWeights[i] = numpy.array(newWeights[i])
 
         newNet = StaticEvolvingNet(self.in_dem, self.out_dem, self.layers, genetics_weights=newWeights)
@@ -71,4 +71,4 @@ class StaticEvolvingNet(MatrixNet):
         return number + (0.5 - random.random()) * 2.0 * self.mutability
 
     def distance(self, net):
-        return sum(map(distance_formula, self.weight_array, net.WeightArray))
+        return sum(map(distance_formula, self.weight_array, net.weight_array))

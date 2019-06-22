@@ -51,6 +51,7 @@ class EvolutionSpeciationDriver(Driver):
             self.add_to_specie(child)
 
     def draw(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, dot_size: int = 10):
+
         self.row_count = int(math.sqrt(len(self.species)))
         self.row_size = math.ceil(len(self.species) / self.row_count)
         super(EvolutionSpeciationDriver, self).draw(screen, x, y, width, height, dot_size)
@@ -128,10 +129,14 @@ class EvolutionSpeciationDriver(Driver):
 
     def add_to_specie(self, child):
         remaining = True
+        print(child)
+        print(self.species)
         for s in range(len(self.species)):
             if child.distance(self.species[s][0]) < self.species_threshold:
                 self.species[s].append(child)
+                # print(self.species[s])
                 remaining = False
                 break
         if remaining:
             self.species.append([child])
+        print(self.species)

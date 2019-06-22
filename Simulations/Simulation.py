@@ -1,15 +1,9 @@
-import os
-import random
 from abc import abstractmethod
-from typing import List, Type
+from typing import List, Type, Callable
 
-from Drivers import Driver
 from Nets.Net import Net
-import math
 import numpy
 import pygame
-
-from formulas import distance_formula
 
 
 class Simulation:
@@ -39,7 +33,7 @@ class Simulation:
     def run_generations_visual(self,
                                population: List[Type[Net]],
                                generation: int,
-                               driver: Type[Driver],
+                               driver_draw: Callable,
                                screen: pygame.Surface,
                                x: int,
                                y: int,

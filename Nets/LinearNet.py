@@ -27,14 +27,14 @@ class LinearNet(Net):
         self.node_values = numpy.zeros((1, self.middle_dem + self.out_dem))
         self.node_sum = numpy.zeros((1, self.middle_dem + self.out_dem))
         self.node_back = numpy.zeros((1, self.in_dem + self.middle_dem))
-        if weights:
+        if weights is not None:
             self.weights = weights
         else:
             dif = abs(weight_range[0] - weight_range[1])
             self.weights = randomize(numpy.zeros((self.in_dem + self.middle_dem, self.middle_dem + self.out_dem)))
             self.weights = numpy.add(weight_range[1], numpy.multiply(dif, self.weights))
 
-        if enabled_weights:
+        if enabled_weights is not None:
             self.enabled_weights: numpy.array = enabled_weights
         else:
             self.enabled_weights: numpy.array = numpy.array([
@@ -122,9 +122,13 @@ class LinearNet(Net):
         self.input_nodes = numpy.array(array, ndmin=2)
 
     def get_out(self):
+        print(self.weights.shape)
 
         self.weights = numpy.multiply(self.weights, self.enabled_weights)
         numpy.zeros((1, self.middle_dem + self.out_dem))
+        print(self.out_dem)
+        print(self.in_dem)
+        print(self.weights.shape)
         self.node_sum = numpy.dot(self.input_nodes, self.weights[:self.in_dem])
 
         for i in range(self.middle_dem):

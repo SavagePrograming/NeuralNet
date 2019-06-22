@@ -7,18 +7,18 @@ from typing import ClassVar, List, Type
 
 from Nets import Net
 from Nets.EvolvingNet import EvolvingNet
-from Simulations import EvolutionSimulation
+from Simulations import Simulation
 
 
 class Driver:
     def __init__(self,
                  population_size: int,
-                 simulation: EvolutionSimulation,
+                 simulation: Type[Simulation.Simulation],
                  generation_size: int,
                  row_size: int,
                  row_count: int,
                  mutability: float = 0.5,
-                 evolving_class: Type[Net] = EvolvingNet):
+                 evolving_class: Type[Net.Net] = EvolvingNet):
         self.in_dem: int = simulation.in_dem
         self.out_dem: int = simulation.in_dem
         self.row_size: int = row_size
@@ -55,19 +55,21 @@ class Driver:
 
     def draw(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, dot_size: int = 10):
         for i in range(self.row_count * self.row_size):
-            self.population[i].update(screen,
-                                    x + (i % self.row_size) * (width // self.row_size),
-                                    y + (i // self.row_size) * (height // self.row_count),
-                                    width // self.row_size,
-                                    height // self.row_count,
-                                    dot_size)
-            self.population[i].draw()
+            if (i < len(self.population)):
+                self.population[i].update(screen,
+                                          x + (i % self.row_size) * (width // self.row_size),
+                                          y + (i // self.row_size) * (height // self.row_count),
+                                          width // self.row_size,
+                                          height // self.row_count,
+                                          dot_size)
+                self.population[i].draw()
 
     def run_visual(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, dot_size: int = 10):
         self.simulation.restart()
 
         fitness = self.simulation.run_generations_visual(self.population,
-                                                         self.generation_size, self,
+                                                         self.generation_size,
+                                                         self.draw,
                                                          screen, x, y, width, height, dot_size)
         self.average = mean(fitness)
         self.median = median(fitness)

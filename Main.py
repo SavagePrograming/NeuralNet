@@ -1,3 +1,5 @@
+from Drivers.NeatSpeciationDriver import NeatSpeciationDriver
+from Nets.NeatNet import NeatNet
 from Testers.EvolutionTrainer import EvolutionTrainer
 from Nets.StaticEvolvingNet import StaticEvolvingNet
 from Drivers.EvolutionSpeciationDriver import EvolutionSpeciationDriver
@@ -18,19 +20,17 @@ SURVIVOR_RATIO = .75
 GENERATION_SIZE = 4
 SPECIES_THRESHOLD = 100.0
 SISR = .01
-BALANCING_FOCUS = 0.0
+BALANCING_FOCUS = 5.0
 MUTABILITY = 50.0
-EVOLVING_CLASS = StaticEvolvingNet
+EVOLVING_CLASS = NeatNet
 
-Driver = EvolutionSpeciationDriver(population_size=POPULATION_SIZE,
+Driver = NeatSpeciationDriver(population_size=POPULATION_SIZE,
                                    survivor_ratio=SURVIVOR_RATIO,
                                    simulation=SIM,
                                    generation_size=GENERATION_SIZE,
                                    species_threshold=SPECIES_THRESHOLD,
                                    species_independent_survivor_ratio=SISR,
-                                   balancing_focus=BALANCING_FOCUS,
-                                   mutability=MUTABILITY,
-                                   evolving_class=EVOLVING_CLASS)
+                                   balancing_focus=BALANCING_FOCUS)
 
 SIZE = [500,500]
 VERBOSITY = 2

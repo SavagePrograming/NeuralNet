@@ -1,6 +1,6 @@
 import os
 import random
-from typing import List, Type
+from typing import List, Type, Callable
 
 import math
 import numpy
@@ -52,7 +52,7 @@ class EvolutionSimulation(Simulation):
     def run_generations_visual(self,
                                population: List[Type[Net]],
                                generation: int,
-                               driver: Type[Driver],
+                               driver_draw: Callable,
                                screen: pygame.Surface,
                                x: int,
                                y: int,
@@ -63,7 +63,7 @@ class EvolutionSimulation(Simulation):
         for i in range(generation):
             fitness = numpy.add(fitness, self.run(population))
 
-            driver.draw(screen, x, y, width, height, dot_size=dot_size)
+            driver_draw(screen, x, y, width, height, dot_size=dot_size)
             pygame.display.flip()
 
         fitness = numpy.divide(fitness, generation)
