@@ -97,11 +97,22 @@ class Specieator:
         return False
 
     def remove_stagnant_species(self):
-        list(map(self.species.remove, filter(not_none, map(self.mark_stagnant, range(len(self.species))))))
+
+        removables = map(self.mark_stagnant, range(len(self.species)))
+        removables2 = map(self.mark_stagnant_score, range(len(self.species)))
+        list(map(self.species.remove, filter(not_none, removables)))
+        list(map(self.species_score.remove, filter(not_none, removables2)))
+
 
     def mark_stagnant(self, i):
         if self.species_score[i][1] >= self.stagnant_generations:
             return self.species[i]
+        return None
+    def mark_stagnant_score(self, i):
+        if self.species_score[i][1] >= self.stagnant_generations:
+            return self.species_score[i]
+        return None
+
 
     def draw(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, dot_size: int = 10):
 
