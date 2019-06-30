@@ -7,32 +7,44 @@ from Simulations.EvolutionSimulation import EvolutionSimulation
 
 
 def IMITATOR(ar):
-    return [1.0] if (ar[0] == 1.0 )!= (ar[1] == 1.0) else [0.0]
+    return [1.0] if (ar[0] == 1.0) != (ar[1] == 1.0) else [0.0]
 
 
 IN_SIZE = 2
 OUT_SIZE = 1
 LAYERS = 0
-SIM = EvolutionSimulation(imitator=IMITATOR, in_dem=IN_SIZE, out_dem=OUT_SIZE, layers = LAYERS)
+SIM = EvolutionSimulation(imitator=IMITATOR, in_dem=IN_SIZE, out_dem=OUT_SIZE, layers=LAYERS)
 
 POPULATION_SIZE = 1000
 SURVIVOR_RATIO = .5
 GENERATION_SIZE = 4
 SPECIES_THRESHOLD = 3.0
-SISR = .01
+SISR = .1
 BALANCING_FOCUS = 0.0
 MUTABILITY = 50.0
 EVOLVING_CLASS = NeatNet
 
 Driver = NeatSpeciationDriver(population_size=POPULATION_SIZE,
-                                   survivor_ratio=SURVIVOR_RATIO,
-                                   simulation=SIM,
-                                   generation_size=GENERATION_SIZE,
-                                   species_threshold=SPECIES_THRESHOLD,
-                                   species_independent_survivor_ratio=SISR,
-                                   balancing_focus=BALANCING_FOCUS)
+                              survivor_ratio=SURVIVOR_RATIO,
+                              simulation=SIM,
+                              generation_size=GENERATION_SIZE,
+                              species_threshold=SPECIES_THRESHOLD,
+                              species_independent_survivor_ratio=SISR,
+                              balancing_focus=BALANCING_FOCUS,
+                              mutability_weights=2.0,
+                              mutability_connections=.4,
+                              mutability_nodes=.3,
+                              mutability_reset=.1,
+                              mutability_change_weight=.8,
+                              mutability_toggle=.1,
+                              excess_weight=1.0,
+                              disjoint_weight=1.0,
+                              weight_weight=0.4,
+                              # inter_species_breeding_rate=,
+                              # asexual_breading_rate=
+                              )
 
-SIZE = [500, 500]
+SIZE = [1000, 1000]
 VERBOSITY = 2
 ERROR_SIZE = 100
 Trainer = EvolutionTrainer(driver=Driver,

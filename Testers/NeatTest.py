@@ -1,3 +1,5 @@
+import random
+
 import pygame
 
 from Nets.NeatNet import NeatNet
@@ -34,12 +36,22 @@ NEW = NeatNet(NEW.in_dem - 1, NEW.out_dem, genes, gene_controller)
 Net.update(Screen, 0, 0, 400, 400)
 NEW.update(Screen, 0, 0, 400, 400)
 
-
+count = 0
 while True:
     Screen.fill([0, 0, 100])
     NEW.draw()
     pygame.event.get()
     pygame.display.flip()
+    count += 1
+    if count % 1000 == 0:
+        genes = NEW.connection_genes.copy()
+        OUT_LIST = list(range(-1, -OUT_DEM - 1, -1)) + list(range(IN_DEM+1, gene_controller.node_innovation_number))
+        # print(OUT_LIST)
+        NEW.add_connection_random(random.randint(0, gene_controller.node_innovation_number - 1), random.choice(OUT_LIST), genes)
+        NEW.add_node(random.randint(0, len(genes)-1), genes)
+        NEW = NeatNet(NEW.in_dem - 1, NEW.out_dem, genes, gene_controller)
+        NEW.update(Screen, 0, 0, 400, 400)
+
 
 # print(Net.in_dem)
 # print(Net.out_dem)

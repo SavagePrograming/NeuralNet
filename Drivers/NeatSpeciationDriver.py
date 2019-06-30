@@ -31,20 +31,21 @@ class NeatSpeciationDriver(EvolutionSpeciationDriver):
                  species_threshold: float,
                  species_independent_survivor_ratio: float,
                  balancing_focus: float,
-                 mutability_weights=0.5,
+                 mutability_weights=2.0,
                  mutability_connections=0.05,
                  mutability_nodes=0.03,
                  mutability_reset=0.1,
                  mutability_change_weight=0.8,
-                 mutability_toggle=0.5,
+                 mutability_toggle=0.1,
                  excess_weight: float = 1.0,
                  disjoint_weight: float = 1.0,
                  weight_weight: float = 0.4,
                  inter_species_breeding_rate=0.001,
-                 asexual_breading_rate=.25):
+                 asexual_breading_rate=.25,
+                 draw_count = 3):
 
         self.in_dem: int = simulation.in_dem
-        self.out_dem: int = simulation.in_dem
+        self.out_dem: int = simulation.out_dem
         self.row_size: int = 0
         self.row_count: int = 0
         self.population_size: int = population_size
@@ -65,6 +66,7 @@ class NeatSpeciationDriver(EvolutionSpeciationDriver):
         self.inter_species_breeding_rate = inter_species_breeding_rate
         self.asexual_breading_rate = asexual_breading_rate
         self.species: List[List[NeatNet]] = []
+        self.draw_count = draw_count
 
         self.gene_pool = GeneticsPackage(self.in_dem, self.out_dem)
 
@@ -84,3 +86,23 @@ class NeatSpeciationDriver(EvolutionSpeciationDriver):
         for child in self.population:
             self.add_to_specie(child)
         # print(len(self.species))
+
+    # def draw(self, screen: pygame.Surface, x: int, y: int, width: int, height: int, dot_size: int = 10):
+    #
+    #     self.row_count = int(math.sqrt(self.draw_count))
+    #     self.row_size = math.ceil(self.draw_count/ self.row_count)
+    #     # print("-------------")
+    #     # print("POP " + ",".join(map(str, self.population)))
+    #     diff = math.ceil(self.population_size / self.draw_count + 1)
+    #     for i in range(self.row_count * self.row_size):
+    #         if i * diff < self.population_size:
+    #             self.population[i * diff].update(screen,
+    #                                       x + (i % self.row_size) * (width // self.row_size),
+    #                                       y + (i // self.row_size) * (height // self.row_count),
+    #                                       width // self.row_size,
+    #                                       height // self.row_count,
+    #                                       dot_size)
+    #             self.population[i * diff].draw()
+    #             # print(self.species[i][0])
+    #             # print(self.species[i][0].input_nodes)
+    #             # print(self.species[i][0].in_color_range)

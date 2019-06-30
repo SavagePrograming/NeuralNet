@@ -7,6 +7,7 @@ from numpy import mean, median, math
 
 from Drivers.Driver import Driver
 from Nets.EvolvingNet import EvolvingNet
+from Nets.NeatNet import has_dup_gene
 from Simulations.EvolutionSimulation import EvolutionSimulation
 
 
@@ -17,6 +18,14 @@ def clean(a):
             del a[i]
         else:
             i += 1
+
+
+def get_species(species, net):
+    for i in range(len(species)):
+        if net in species[i]:
+            return i
+
+    return -1
 
 
 class EvolutionSpeciationDriver(Driver):
@@ -76,7 +85,7 @@ class EvolutionSpeciationDriver(Driver):
     def repopulate(self, fitness: List[float]):
         survivors = int(self.population_size * self.survivor_ratio) - ceil(self.population_size * self.SISR)
         for i in range(len(fitness)):
-            self.population[i].Score = fitness[i]
+            self.population[i].score = fitness[i]
         SIS = []
         if self.SISR < .25:
             for i in range(ceil(self.population_size * self.SISR)):
@@ -87,7 +96,8 @@ class EvolutionSpeciationDriver(Driver):
             self.population.sort(reverse=True)
             SIS = self.population[:ceil(self.population_size * self.SISR)]
             self.population = self.population[ceil(self.population_size * self.SISR):]
-
+        # print("start")
+        # print(",".join([str(n.score) for n in self.population]))
         for s in range(len(self.species)):
             size = len(self.species[s])
             for net in self.species[s]:
@@ -95,6 +105,7 @@ class EvolutionSpeciationDriver(Driver):
         # for net in self.population:
         #     net.score *= sum(map(net.distance, self.population))
         self.population.sort(reverse=True)
+        # print(",".join([str(n.score) for n in self.population]))
 
         self.population = self.population[:survivors]
         self.population = SIS + self.population
@@ -123,10 +134,15 @@ class EvolutionSpeciationDriver(Driver):
             else:
                 clean(self.species)
                 self.speciate(self.population_size - int(self.population_size * self.survivor_ratio))
+        # print("Species: %d" % (len(self.species)))
         # list(map(print, self.population))
-        # for i in range(len(self.species)):
+        # for i in range(min(3, len(self.species))):
+        #     # print(has_dup_gene(self.species[i][0].connection_genes))
+        #     # print(",".join(map(str, self.species[i][0].connection_genes)))
         #     for j in range(len(self.species)):
-        #         print("<%d %d> %f" % (i, j, self.species[i][0].distance(self.species[j][0])))
+        #         print("<%d %d> %f %s %s" % (
+        #         i, j, self.species[i][0].distance(self.species[j][0]), str(self.species[i][0]),
+        #         str(self.species[j][0])))
 
     def respeciate(self, size: int):
         survivors = len(self.population)
@@ -135,7 +151,7 @@ class EvolutionSpeciationDriver(Driver):
                 if random.random() < self.inter_species_breeding_rate:
                     child = self.population[i % survivors].breed(random.choice(self.population[:survivors]))
                 else:
-                    specie = self.population[i % survivors].specie
+                    specie = get_species(self.species, self.population[i % survivors])
                     child = self.population[i % survivors].breed(
                         random.choice(self.species[specie]))
             else:
@@ -155,7 +171,7 @@ class EvolutionSpeciationDriver(Driver):
                 if random.random() < self.inter_species_breeding_rate:
                     child = self.population[i % survivors].breed(random.choice(self.population[:survivors]))
                 else:
-                    specie = self.population[i % survivors].specie
+                    specie = get_species(self.species, self.population[i % survivors])
                     child = self.population[i % survivors].breed(
                         random.choice(self.species[specie][:species_lens[specie]]))
             else:

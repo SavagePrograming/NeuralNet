@@ -29,7 +29,7 @@ class EvolutionDriver(Driver):
 
     def repopulate(self, fitness: List[float]):
         for i in range(len(fitness)):
-            self.population[i].Score = fitness[i]
+            self.population[i].score = fitness[i]
         self.population.sort(reverse=True)
         self.population = self.population[:int(self.population_size * self.survivor_ratio)]
 
