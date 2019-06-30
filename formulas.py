@@ -112,3 +112,16 @@ def encode_gene(gene):
 def decode_gene(gene):
     gene = gene.split(";")
     return int(gene[0]), int(gene[1]), int(gene[2]), float(gene[3]), to_bool(gene[4])
+
+
+
+def get_species(species, net):
+    for i in range(len(species)):
+        if net in species[i]:
+            return i
+
+    return -1
+
+
+def not_none(x):
+    return x is not None

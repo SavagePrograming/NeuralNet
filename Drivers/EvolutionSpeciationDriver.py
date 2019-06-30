@@ -9,6 +9,7 @@ from Drivers.Driver import Driver
 from Nets.EvolvingNet import EvolvingNet
 from Nets.NeatNet import has_dup_gene
 from Simulations.EvolutionSimulation import EvolutionSimulation
+from formulas import get_species
 
 
 def clean(a):
@@ -18,14 +19,6 @@ def clean(a):
             del a[i]
         else:
             i += 1
-
-
-def get_species(species, net):
-    for i in range(len(species)):
-        if net in species[i]:
-            return i
-
-    return -1
 
 
 class EvolutionSpeciationDriver(Driver):
@@ -58,7 +51,7 @@ class EvolutionSpeciationDriver(Driver):
         self.balance_focus: float = balancing_focus
         self.SISR: float = species_independent_survivor_ratio
 
-        self.survivor_ratio: float = survivor_ratio
+        self.reproducer_ratio: float = survivor_ratio
         self.species: List[List[evolving_class]] = []
         for child in self.population:
             self.add_to_specie(child)
@@ -83,7 +76,7 @@ class EvolutionSpeciationDriver(Driver):
                 # print(self.species[i][0].in_color_range)
 
     def repopulate(self, fitness: List[float]):
-        survivors = int(self.population_size * self.survivor_ratio) - ceil(self.population_size * self.SISR)
+        survivors = int(self.population_size * self.reproducer_ratio) - ceil(self.population_size * self.SISR)
         for i in range(len(fitness)):
             self.population[i].score = fitness[i]
         SIS = []
@@ -118,7 +111,7 @@ class EvolutionSpeciationDriver(Driver):
                     n += 1
         if self.balance_focus == 0:
             clean(self.species)
-            self.speciate(self.population_size - int(self.population_size * self.survivor_ratio))
+            self.speciate(self.population_size - int(self.population_size * self.reproducer_ratio))
             # for specie in self.species:
             #     print(",".join(map(str,specie)))
         else:
@@ -126,14 +119,14 @@ class EvolutionSpeciationDriver(Driver):
             if len(self.species) / self.population_size > self.balance_top:
                 self.species_threshold += self.balance_focus
                 clean(self.species)
-                self.respeciate(self.population_size - int(self.population_size * self.survivor_ratio))
+                self.respeciate(self.population_size - int(self.population_size * self.reproducer_ratio))
             elif len(self.species) / self.population_size < self.balance_bottom:
                 self.species_threshold -= self.balance_focus
                 clean(self.species)
-                self.respeciate(self.population_size - int(self.population_size * self.survivor_ratio))
+                self.respeciate(self.population_size - int(self.population_size * self.reproducer_ratio))
             else:
                 clean(self.species)
-                self.speciate(self.population_size - int(self.population_size * self.survivor_ratio))
+                self.speciate(self.population_size - int(self.population_size * self.reproducer_ratio))
         # print("Species: %d" % (len(self.species)))
         # list(map(print, self.population))
         # for i in range(min(3, len(self.species))):
