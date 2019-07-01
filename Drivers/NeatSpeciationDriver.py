@@ -92,14 +92,19 @@ class NeatSpeciationDriver(EvolutionSpeciationDriver):
 
     def repopulate(self, fitness: List[float]):
         self.generation_count += 1
-
+        print("START")
+        print(len(self.population))
         for i in range(len(fitness)):
             self.population[i].score = fitness[i]
         self.specieator.score_species(self.generation_count)
-        [self.population.remove(w) for w in remove_list for remove_list in self.population.removeself.specieator.remove_stagnant_species()]
+        for remove_list in self.specieator.remove_stagnant_species(self.generation_count):
+            for w in remove_list:
+                self.population.remove(w)
 
+        print(len(self.population))
         SIS = self.specieator.get_species_champions()
-        print(SIS)
+        # print(SIS)
+        print(len(self.population))
 
         reproducers = int(self.population_size * self.reproducer_ratio) - len(SIS)
 
@@ -108,8 +113,12 @@ class NeatSpeciationDriver(EvolutionSpeciationDriver):
         self.specieator.adjust_scores()
 
         self.population.sort(reverse=True)
+        print(len(self.population))
+        # print(len(SIS))
         self.reproducers = SIS + self.population[:reproducers]
-        print(self.reproducers)
+        # print(len(self.reproducers))
+
+        # print(self.reproducers)
 
         self.population = SIS
 
@@ -130,6 +139,7 @@ class NeatSpeciationDriver(EvolutionSpeciationDriver):
 
     def breed_new_nets(self, size: int):
         reproducers = len(self.reproducers)
+        print(reproducers)
         new_nets = []
         for i in range(size):
             if random.random() > self.asexual_breading_rate:

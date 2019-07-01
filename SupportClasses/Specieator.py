@@ -96,24 +96,25 @@ class Specieator:
             return True
         return False
 
-    def remove_stagnant_species(self):
-        print("--------------------")
-        removables = list(map(self.mark_stagnant, range(len(self.species))))
-        removables2 = list(map(self.mark_stagnant_score, range(len(self.species))))
-        print("====================")
-        list(map(self.species.remove, filter(not_none, removables)))
-        list(map(self.species_score.remove, filter(not_none, removables2)))
+    def remove_stagnant_species(self, generation_count):
+        # print("--------------------")
+        self.generation_count = generation_count
+        removables = list(filter(not_none, map(self.mark_stagnant, range(len(self.species)))))
+        removables2 = list(filter(not_none, map(self.mark_stagnant_score, range(len(self.species)))))
+        # print("====================")
+        list(map(self.species.remove, removables))
+        list(map(self.species_score.remove, removables2))
         return removables
 
 
     def mark_stagnant(self, i):
-        if self.species_score[i][1] >= self.stagnant_generations:
-            print(len(self.species))
-            print(i)
+        if self.generation_count - self.species_score[i][1] >= self.stagnant_generations:
+            # print(len(self.species))
+            # print(i)
             return self.species[i]
         return None
     def mark_stagnant_score(self, i):
-        if self.species_score[i][1] >= self.stagnant_generations:
+        if self.generation_count - self.species_score[i][1] >= self.stagnant_generations:
             return self.species_score[i]
         return None
 

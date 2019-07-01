@@ -18,7 +18,7 @@ SIM = EvolutionSimulation(imitator=IMITATOR, in_dem=IN_SIZE, out_dem=OUT_SIZE, l
 POPULATION_SIZE = 1000
 SURVIVOR_RATIO = .5
 GENERATION_SIZE = 4
-SPECIES_THRESHOLD = 0.5
+SPECIES_THRESHOLD = 3.0
 SISR = .1
 BALANCING_FOCUS = 0.0
 MUTABILITY = 50.0
@@ -31,14 +31,16 @@ Driver = NeatSpeciationDriver(population_size=POPULATION_SIZE,
                               species_threshold=SPECIES_THRESHOLD,
                               balance_focus=BALANCING_FOCUS,
                               mutability_weights=2.0,
-                              mutability_connections=.4,
-                              mutability_nodes=.3,
+                              mutability_connections=.05,
+                              mutability_nodes=.03,
                               mutability_reset=.1,
                               mutability_change_weight=.8,
                               mutability_toggle=.1,
                               excess_weight=1.0,
                               disjoint_weight=1.0,
-                              weight_weight=0.0
+                              weight_weight=0.4,
+                              inter_species_breeding_rate=0.001,
+                              asexual_breading_rate=.25
                               )
 
 SIZE = [800, 800]
