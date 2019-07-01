@@ -71,7 +71,7 @@ class Specieator:
 
     def remove_all_but(self, keep):
         self.keep = keep
-        map(self.remove_all_from_one_specie, self.species)
+        self.species = list(map(self.remove_all_from_one_specie, self.species))
 
     def remove_all_from_one_specie(self, specie):
         return list(filter(self.remove_child_filter, specie))
@@ -97,15 +97,19 @@ class Specieator:
         return False
 
     def remove_stagnant_species(self):
-
-        removables = map(self.mark_stagnant, range(len(self.species)))
-        removables2 = map(self.mark_stagnant_score, range(len(self.species)))
+        print("--------------------")
+        removables = list(map(self.mark_stagnant, range(len(self.species))))
+        removables2 = list(map(self.mark_stagnant_score, range(len(self.species))))
+        print("====================")
         list(map(self.species.remove, filter(not_none, removables)))
         list(map(self.species_score.remove, filter(not_none, removables2)))
+        return removables
 
 
     def mark_stagnant(self, i):
         if self.species_score[i][1] >= self.stagnant_generations:
+            print(len(self.species))
+            print(i)
             return self.species[i]
         return None
     def mark_stagnant_score(self, i):

@@ -47,7 +47,7 @@ class NeatSpeciationDriver(EvolutionSpeciationDriver):
                  draw_count=3,
                  stagnant_limit=5):
 
-        self.reprocucers = []
+        self.reproducers = []
         self.stagnant_limit = stagnant_limit
         self.in_dem: int = simulation.in_dem
         self.out_dem: int = simulation.out_dem
@@ -96,21 +96,24 @@ class NeatSpeciationDriver(EvolutionSpeciationDriver):
         for i in range(len(fitness)):
             self.population[i].score = fitness[i]
         self.specieator.score_species(self.generation_count)
-        self.specieator.remove_stagnant_species()
+        [self.population.remove(w) for w in remove_list for remove_list in self.population.removeself.specieator.remove_stagnant_species()]
 
         SIS = self.specieator.get_species_champions()
+        print(SIS)
+
         reproducers = int(self.population_size * self.reproducer_ratio) - len(SIS)
 
-        map(self.population.remove, SIS)
+        list(map(self.population.remove, SIS))
 
         self.specieator.adjust_scores()
 
         self.population.sort(reverse=True)
-        self.reprocucers = SIS + self.population[:reproducers]
+        self.reproducers = SIS + self.population[:reproducers]
+        print(self.reproducers)
 
         self.population = SIS
 
-        self.specieator.remove_all_but(self.reprocucers)
+        self.specieator.remove_all_but(self.reproducers)
 
         new_nets = self.breed_new_nets(self.population_size - len(SIS))
 
@@ -126,19 +129,22 @@ class NeatSpeciationDriver(EvolutionSpeciationDriver):
             self.specieator.add_all_to_species(new_nets, self.generation_count)
 
     def breed_new_nets(self, size: int):
-        reprocucers = len(self.reprocucers)
+        reproducers = len(self.reproducers)
         new_nets = []
         for i in range(size):
             if random.random() > self.asexual_breading_rate:
-                if random.random() < self.inter_species_breeding_rate:
-                    child = self.reprocucers[i % reprocucers].breed(random.choice(self.reprocucers[:reprocucers]))
-                else:
-                    specie = self.specieator.get_species(self.reprocucers[i % reprocucers])
-
-                    child = self.reprocucers[i % reprocucers].breed(
+                specie = self.specieator.get_species(self.reproducers[i % reproducers])
+                if specie < 0:
+                    print(specie)
+                    print(self.reproducers[i % reproducers])
+                if specie >= 0 and random.random() >= self.inter_species_breeding_rate:
+                    child = self.reproducers[i % reproducers].breed(
                         random.choice(self.specieator.species[specie]))
+                else:
+                    child = self.reproducers[i % reproducers].breed(random.choice(self.reproducers[:reproducers]))
+
             else:
-                child = self.reprocucers[i % reprocucers].replicate()
+                child = self.reproducers[i % reproducers].replicate()
             new_nets.append(child)
         return new_nets
 
